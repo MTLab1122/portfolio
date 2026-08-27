@@ -1,0 +1,44 @@
+---
+import { Icon } from "astro-icon/components";
+import { person } from "../data/profile";
+---
+
+<section id="contact" class="border-t border-line px-5 py-16 sm:px-10">
+  <div class="reveal rounded-frame bg-ink px-6 py-14 text-center sm:px-14 sm:py-16">
+    <p class="mb-4 font-mono text-xs uppercase tracking-[0.22em] text-lime">Contact</p>
+    <h2 class="mx-auto max-w-2xl font-display text-3xl font-bold leading-tight tracking-tight text-paper sm:text-5xl">
+      Need a premium website that actually converts?
+    </h2>
+    <p class="mx-auto mt-5 max-w-lg text-paper/65">
+      I design and build polished digital experiences for founders, creatives, and growing businesses.
+    </p>
+
+    <div class="mt-9 flex flex-wrap items-center justify-center gap-3">
+      <a
+        href={`mailto:${person.email}`}
+        class="inline-flex items-center gap-2 rounded-pill bg-lime px-7 py-3.5 text-sm font-semibold text-ink transition-colors hover:bg-paper"
+      >
+        <Icon name="lucide:mail" class="h-4 w-4" />
+        {person.email}
+      </a>
+      <a
+        href={person.linkedin}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex items-center gap-2 rounded-pill border border-paper/25 px-6 py-3.5 text-sm font-semibold text-paper transition-colors hover:border-paper"
+      >
+        <Icon name="lucide:linkedin" class="h-4 w-4" />
+        LinkedIn
+      </a>
+      <a
+        href={person.github}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex items-center gap-2 rounded-pill border border-paper/25 px-6 py-3.5 text-sm font-semibold text-paper transition-colors hover:border-paper"
+      >
+        <Icon name="lucide:github" class="h-4 w-4" />
+        GitHub
+      </a>
+    </div>
+  </div>
+</section>

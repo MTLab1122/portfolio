@@ -1,0 +1,76 @@
+---
+import { Icon } from "astro-icon/components";
+import { nav, person } from "../data/profile";
+
+const railIcons: Record<string, string> = {
+  About: "lucide:user-round",
+  Skills: "lucide:layers",
+  Work: "lucide:code-2",
+  Experience: "lucide:briefcase",
+  Contact: "lucide:mail",
+};
+
+const initials = person.name
+  .split(" ")
+  .map((w) => w[0])
+  .join("");
+---
+
+<aside
+  class="hidden lg:flex sticky top-0 h-screen w-20 shrink-0 flex-col items-center justify-between bg-ink py-6"
+  aria-label="Primary"
+>
+  <div class="flex flex-col items-center gap-8">
+    <a
+      href="#top"
+      class="grid place-items-center w-11 h-11 rounded-full bg-lime text-ink font-display font-bold text-sm"
+      aria-label="Back to top"
+    >
+      MT
+    </a>
+
+    <nav class="flex flex-col items-center gap-2">
+      {
+        nav.map((item) => (
+          <a
+            href={item.href}
+            class="group grid place-items-center w-11 h-11 rounded-full text-paper/60 hover:text-ink hover:bg-lime transition-colors duration-200"
+            title={item.label}
+            aria-label={item.label}
+          >
+            <Icon name={railIcons[item.label] ?? "lucide:circle"} class="w-5 h-5" />
+          </a>
+        ))
+      }
+    </nav>
+  </div>
+
+  <div class="flex flex-col items-center gap-3">
+    <a
+      href={person.github}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="grid place-items-center w-10 h-10 rounded-full text-paper/60 hover:text-ink hover:bg-lime transition-colors duration-200"
+      aria-label="GitHub profile"
+    >
+      <Icon name="lucide:github" class="w-[1.125rem] h-[1.125rem]" />
+    </a>
+    <a
+      href={person.linkedin}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="grid place-items-center w-10 h-10 rounded-full text-paper/60 hover:text-ink hover:bg-lime transition-colors duration-200"
+      aria-label="LinkedIn profile"
+    >
+      <Icon name="lucide:linkedin" class="w-[1.125rem] h-[1.125rem]" />
+    </a>
+    <a
+      href={person.resumeUrl}
+      download
+      class="grid place-items-center w-10 h-10 rounded-full text-paper/60 hover:text-ink hover:bg-lime transition-colors duration-200"
+      aria-label="Download resume"
+    >
+      <Icon name="lucide:download" class="w-[1.125rem] h-[1.125rem]" />
+    </a>
+  </div>
+</aside>

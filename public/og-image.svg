@@ -1,0 +1,18 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" rx="32" fill="#F3F1E9"/>
+  <rect x="24" y="24" width="1152" height="582" rx="28" fill="#A9B8A2"/>
+  <rect x="60" y="60" width="1080" height="510" rx="24" fill="#14150F"/>
+  <circle cx="930" cy="190" r="105" fill="#D8FA3E" fill-opacity="0.18"/>
+  <circle cx="1040" cy="470" r="146" fill="#D8FA3E" fill-opacity="0.12"/>
+  <path d="M790 196C790 147.6 829.6 108 878 108H900C948.4 108 988 147.6 988 196V240H790V196Z" fill="#D8FA3E"/>
+  <path d="M780 344H996C1010.4 344 1022 355.6 1022 370V435C1022 449.4 1010.4 461 996 461H780C765.6 461 754 449.4 754 435V370C754 355.6 765.6 344 780 344Z" fill="#F3F1E9"/>
+  <text x="116" y="260" fill="#F3F1E9" font-family="Arial, Helvetica, sans-serif" font-size="74" font-weight="700">Muhammad Talha</text>
+  <text x="116" y="356" fill="#D8FA3E" font-family="Arial, Helvetica, sans-serif" font-size="38" font-weight="600">Software Engineer &amp; Web Developer</text>
+  <text x="116" y="440" fill="#F3F1E9" font-family="Arial, Helvetica, sans-serif" font-size="28" opacity="0.74">Astro • Next.js • TypeScript • Node.js</text>
+  <rect x="116" y="486" width="280" height="34" rx="17" fill="#D8FA3E"/>
+  <text x="146" y="510" fill="#14150F" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700">Available for freelance work</text>
+  <circle cx="182" cy="175" r="75" fill="#F5EBDD"/>
+  <path d="M179 112C203 112 222 132 222 154C222 177 203 198 179 198C155 198 136 177 136 154C136 132 155 112 179 112Z" fill="#1B2430"/>
+  <path d="M118 242C123 201 154 175 180 175C209 175 241 199 245 241L253 287H110L118 242Z" fill="#F3CDA0"/>
+  <path d="M125 293H236L252 404H109L125 293Z" fill="#0F172A"/>
+</svg>

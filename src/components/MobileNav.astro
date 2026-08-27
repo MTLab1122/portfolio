@@ -1,0 +1,69 @@
+---
+import { Icon } from "astro-icon/components";
+import { nav, person } from "../data/profile";
+
+const initials = person.name
+  .split(" ")
+  .map((w) => w[0])
+  .join("");
+---
+
+<div class="lg:hidden sticky top-0 z-30 bg-ink px-4 py-3">
+  <div class="flex items-center justify-between">
+    <a
+      href="#top"
+      class="grid place-items-center w-9 h-9 rounded-full bg-lime text-ink font-display font-bold text-xs"
+    >
+      {initials}
+    </a>
+
+    <button
+      id="mobile-nav-toggle"
+      class="grid place-items-center w-9 h-9 rounded-full text-paper"
+      aria-expanded="false"
+      aria-controls="mobile-nav-menu"
+      aria-label="Open menu"
+    >
+      <Icon name="lucide:menu" class="w-5 h-5" id="icon-menu" />
+      <Icon name="lucide:x" class="w-5 h-5 hidden" id="icon-close" />
+    </button>
+  </div>
+
+  <nav id="mobile-nav-menu" class="hidden grid-cols-2 gap-2 pt-4 pb-2">
+    {
+      nav.map((item) => (
+        <a
+          href={item.href}
+          class="mobile-nav-link rounded-card bg-ink-soft text-paper px-4 py-3 text-sm font-medium"
+        >
+          {item.label}
+        </a>
+      ))
+    }
+  </nav>
+</div>
+
+<script>
+  const toggle = document.getElementById("mobile-nav-toggle");
+  const menu = document.getElementById("mobile-nav-menu");
+  const iconMenu = document.getElementById("icon-menu");
+  const iconClose = document.getElementById("icon-close");
+
+  toggle?.addEventListener("click", () => {
+    const isOpen = menu?.classList.toggle("hidden") === false;
+    menu?.classList.toggle("grid", isOpen);
+    toggle.setAttribute("aria-expanded", String(isOpen));
+    iconMenu?.classList.toggle("hidden", isOpen);
+    iconClose?.classList.toggle("hidden", !isOpen);
+  });
+
+  document.querySelectorAll(".mobile-nav-link").forEach((link) => {
+    link.addEventListener("click", () => {
+      menu?.classList.add("hidden");
+      menu?.classList.remove("grid");
+      toggle?.setAttribute("aria-expanded", "false");
+      iconMenu?.classList.remove("hidden");
+      iconClose?.classList.add("hidden");
+    });
+  });
+</script>

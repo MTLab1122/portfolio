@@ -1,0 +1,91 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { blogPosts, person } from "../../data/profile";
+
+export async function getStaticPaths() {
+  return blogPosts.map((post) => ({ params: { slug: post.slug }, props: { post } }));
+}
+
+const { post } = Astro.props;
+const relatedPosts = blogPosts.filter((item) => item.slug !== post.slug).slice(0, 3);
+const pageTitle = `${post.title} — ${person.name}`;
+const pageDescription = post.description;
+---
+
+<Layout title={pageTitle} description={pageDescription}>
+  <div class="min-h-screen bg-sage px-4 py-5 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-5xl rounded-[2rem] border border-ink/10 bg-paper shadow-[0_30px_80px_rgba(20,21,15,0.08)] overflow-hidden">
+      <header class="border-b border-line px-5 py-5 sm:px-8 lg:px-10">
+        <nav class="flex flex-wrap items-center gap-2 text-sm text-ink/70" aria-label="Breadcrumb">
+          <a href="/" class="font-medium text-ink hover:text-ink/80">Home</a>
+          <span aria-hidden="true">/</span>
+          <a href="/blog" class="font-medium text-ink hover:text-ink/80">Blog</a>
+          <span aria-hidden="true">/</span>
+          <span class="font-semibold text-ink">{post.title}</span>
+        </nav>
+      </header>
+
+      <main class="px-5 py-8 sm:px-8 lg:px-10 lg:py-12">
+        <article>
+          <header class="mx-auto max-w-3xl">
+            <p class="font-mono text-[0.7rem] uppercase tracking-[0.2em] text-muted">{post.category}</p>
+            <h1 class="mt-3 font-display text-4xl font-bold tracking-tight text-ink sm:text-5xl">{post.title}</h1>
+            <div class="mt-4 flex flex-wrap items-center gap-3 text-sm text-ink/70">
+              <span>{post.author}</span>
+              <span aria-hidden="true">•</span>
+              <time datetime={post.date}>{new Date(post.date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</time>
+              <span aria-hidden="true">•</span>
+              <span>{post.readTime}</span>
+            </div>
+          </header>
+
+          <img src={post.image} alt={post.title} class="mt-8 h-72 w-full rounded-[1.5rem] object-cover sm:h-96" loading="eager" />
+
+          <div class="mx-auto mt-8 max-w-3xl prose prose-lg prose-headings:font-display prose-p:text-ink/75 prose-a:text-ink prose-strong:text-ink prose-li:text-ink/75">
+            <p>
+              A premium website is not just a digital brochure; it is a trust-building system. In practice, the best-performing pages combine clean UX, thoughtful positioning, and a technical foundation that supports speed, accessibility, and organic reach.
+            </p>
+            <p>
+              When we talk about performance, we are really talking about user confidence. Fast pages feel reliable. Clear hierarchy makes decisions easier. Good structure makes search engines understand intent better. The result is a site that looks polished and behaves like a serious business asset.
+            </p>
+            <h2>Start with the business goal</h2>
+            <p>
+              Before writing copy or choosing a color palette, clarify what the visitor needs to understand and do. For a portfolio, that often means proving capability, showing relevant proof, and making contact simple. For a service business, it usually involves trust-building and conversion clarity.
+            </p>
+            <h2>Design for clarity, not decoration</h2>
+            <p>
+              Strong design is rarely noisy. It is deliberate. Better spacing, better type scale, and a cleaner visual rhythm can instantly increase perceived quality and make users more likely to trust the message.
+            </p>
+            <h2>Technical quality creates long-term leverage</h2>
+            <p>
+              A site that is accessible, fast, and SEO-aware compounds over time. Semantic markup, clean metadata, internal linking, and good image handling matter much more than decorative effects that slow the experience down.
+            </p>
+            <p>
+              The right balance is simple: build something visually elevated, technically solid, and easy to maintain. That is what turns a website from a one-time project into an asset.
+            </p>
+          </div>
+
+          <div class="mx-auto mt-8 max-w-3xl">
+            <div class="flex flex-wrap gap-2">
+              {post.tags.map((tag) => (
+                <span class="rounded-pill bg-paper-dim px-3 py-1.5 text-[0.66rem] font-mono uppercase tracking-[0.14em] text-muted">#{tag}</span>
+              ))}
+            </div>
+          </div>
+        </article>
+
+        <aside class="mx-auto mt-12 max-w-3xl rounded-card border border-line bg-paper-dim p-6">
+          <p class="font-mono text-[0.7rem] uppercase tracking-[0.2em] text-muted">Related posts</p>
+          <div class="mt-5 grid gap-4 md:grid-cols-3">
+            {relatedPosts.map((related) => (
+              <a href={`/blog/${related.slug}`} class="rounded-card border border-line bg-paper p-4 transition-transform duration-200 hover:-translate-y-1">
+                <p class="font-mono text-[0.64rem] uppercase tracking-[0.15em] text-muted">{related.category}</p>
+                <h3 class="mt-2 font-display text-lg font-semibold text-ink">{related.title}</h3>
+              </a>
+            ))}
+          </div>
+        </aside>
+      </main>
+    </div>
+  </div>
+</Layout>

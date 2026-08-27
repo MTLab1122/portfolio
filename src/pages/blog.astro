@@ -1,0 +1,115 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { blogPosts, person } from "../data/profile";
+
+const pageTitle = `Blog — ${person.name}`;
+const pageDescription = `Read practical insights on web development, SEO, design, and digital growth from ${person.name}.`;
+const posts = blogPosts;
+const featuredPost = posts.find((post) => post.featured) ?? posts[0];
+const regularPosts = posts.filter((post) => post.slug !== featuredPost.slug);
+---
+
+<Layout title={pageTitle} description={pageDescription}>
+  <div class="min-h-screen bg-sage px-4 py-5 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-6xl rounded-[2rem] border border-ink/10 bg-paper shadow-[0_30px_80px_rgba(20,21,15,0.08)] overflow-hidden">
+      <header class="border-b border-line bg-paper px-5 py-5 sm:px-8 lg:px-10">
+        <nav class="flex items-center justify-between gap-3 text-sm text-ink/70" aria-label="Breadcrumb">
+          <a href="/" class="font-medium text-ink hover:text-ink/80">Home</a>
+          <span aria-hidden="true">/</span>
+          <span class="font-semibold text-ink">Blog</span>
+        </nav>
+      </header>
+
+      <main class="px-5 py-8 sm:px-8 lg:px-10 lg:py-12">
+        <section class="mb-10">
+          <p class="font-mono text-[0.7rem] uppercase tracking-[0.2em] text-muted">Insights</p>
+          <h1 class="mt-3 max-w-3xl font-display text-4xl font-bold tracking-tight text-ink sm:text-5xl lg:text-6xl">
+            Practical ideas for better web products, SEO, and growth.
+          </h1>
+          <p class="mt-5 max-w-2xl text-base leading-relaxed text-ink/75">
+            I write about the systems, design decisions, and optimization strategies that help websites feel premium, perform fast, and convert better.
+          </p>
+        </section>
+
+        <section class="mb-10 grid gap-6 lg:grid-cols-[1.3fr_0.7fr]">
+          <article class="group overflow-hidden rounded-card border border-line bg-paper-dim shadow-sm transition-transform duration-300 hover:-translate-y-1">
+            <a href={`/blog/${featuredPost.slug}`} class="block">
+              <img
+                src={featuredPost.image}
+                alt={featuredPost.title}
+                class="h-64 w-full object-cover sm:h-72"
+                loading="eager"
+              />
+            </a>
+            <div class="p-6 sm:p-7">
+              <div class="flex flex-wrap items-center gap-2 text-xs font-mono uppercase tracking-[0.16em] text-muted">
+                <span>{featuredPost.category}</span>
+                <span>•</span>
+                <time datetime={featuredPost.date}>{new Date(featuredPost.date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</time>
+              </div>
+              <h2 class="mt-4 font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl">
+                <a href={`/blog/${featuredPost.slug}`} class="hover:text-ink/75">{featuredPost.title}</a>
+              </h2>
+              <p class="mt-3 text-base leading-relaxed text-ink/70">{featuredPost.excerpt}</p>
+              <div class="mt-5 flex items-center justify-between gap-4">
+                <div>
+                  <p class="text-sm font-semibold text-ink">{featuredPost.author}</p>
+                  <p class="text-xs text-muted">{featuredPost.readTime}</p>
+                </div>
+                <a href={`/blog/${featuredPost.slug}`} class="inline-flex items-center gap-2 rounded-pill bg-ink px-4 py-2 text-sm font-semibold text-paper transition-colors hover:bg-ink-soft">
+                  Read article
+                </a>
+              </div>
+            </div>
+          </article>
+
+          <aside class="rounded-card border border-line bg-ink p-6 text-paper">
+            <p class="font-mono text-[0.7rem] uppercase tracking-[0.2em] text-lime">Why read</p>
+            <ul class="mt-5 space-y-4 text-sm leading-relaxed text-paper/75">
+              <li>• Actionable advice for founders and developers.</li>
+              <li>• Clear explanations of SEO, performance, and design trade-offs.</li>
+              <li>• Opinionated but practical guidance built around real web work.</li>
+            </ul>
+            <div class="mt-8 rounded-card bg-paper-dim p-4 text-ink">
+              <p class="font-mono text-[0.7rem] uppercase tracking-[0.2em] text-muted">Looking for work?</p>
+              <p class="mt-2 text-base font-semibold">Build a premium website that converts.</p>
+              <a href="/#contact" class="mt-4 inline-flex rounded-pill bg-ink px-4 py-2 text-sm font-semibold text-paper hover:bg-ink-soft">Book a project</a>
+            </div>
+          </aside>
+        </section>
+
+        <section aria-label="Blog listing" class="space-y-6">
+          {regularPosts.map((post) => (
+            <article class="group flex flex-col gap-5 rounded-card border border-line bg-paper-dim p-5 transition-shadow duration-300 hover:shadow-[0_18px_40px_rgba(20,21,15,0.08)] sm:p-6 md:flex-row md:items-center">
+              <a href={`/blog/${post.slug}`} class="block md:w-56">
+                <img src={post.image} alt={post.title} class="h-40 w-full rounded-[1.1rem] object-cover md:h-32 md:w-56" loading="lazy" />
+              </a>
+              <div class="flex-1">
+                <div class="flex flex-wrap items-center gap-2 text-[0.68rem] font-mono uppercase tracking-[0.18em] text-muted">
+                  <span>{post.category}</span>
+                  <span>•</span>
+                  <time datetime={post.date}>{new Date(post.date).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}</time>
+                </div>
+                <h2 class="mt-3 font-display text-2xl font-bold tracking-tight text-ink">
+                  <a href={`/blog/${post.slug}`} class="hover:text-ink/75">{post.title}</a>
+                </h2>
+                <p class="mt-2 max-w-2xl text-sm leading-relaxed text-ink/70">{post.excerpt}</p>
+                <div class="mt-4 flex flex-wrap items-center gap-2">
+                  {post.tags.map((tag) => (
+                    <span class="rounded-pill border border-line bg-paper px-2.5 py-1 text-[0.62rem] font-mono uppercase tracking-[0.14em] text-muted">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div class="md:text-right">
+                <p class="text-sm font-medium text-ink">{post.author}</p>
+                <p class="text-xs text-muted">{post.readTime}</p>
+              </div>
+            </article>
+          ))}
+        </section>
+      </main>
+    </div>
+  </div>
+</Layout>

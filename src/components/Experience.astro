@@ -1,0 +1,71 @@
+---
+import { Icon } from "astro-icon/components";
+import { experience, internships, courses } from "../data/profile";
+import SectionHeading from "./SectionHeading.astro";
+---
+
+<section id="experience" class="border-t border-line px-5 py-16 sm:px-10">
+  <SectionHeading eyebrow="Experience" title="Career snapshot." />
+
+  <div class="mt-10 lg:grid lg:grid-cols-[1.2fr_0.8fr] lg:gap-8">
+    <ol class="reveal relative space-y-5 border-l border-line pl-8">
+      {
+        experience.map((item) => (
+          <li class="relative rounded-card border border-line bg-paper-dim p-5">
+            <span class="absolute -left-[2.35rem] top-6 h-3 w-3 rounded-full border-2 border-ink bg-lime" />
+            <div class="flex flex-wrap items-center justify-between gap-2 text-[0.68rem] font-mono uppercase tracking-[0.14em] text-muted">
+              <span>{item.period}</span>
+              <span>{item.type}</span>
+            </div>
+            <h3 class="mt-3 font-display text-xl font-semibold text-ink">{item.role}</h3>
+            <p class="mt-1 text-sm text-ink/65">{item.org}</p>
+            <ul class="mt-3 space-y-2">
+              {item.bullets.map((b) => (
+                <li class="text-sm leading-relaxed text-ink/70">• {b}</li>
+              ))}
+            </ul>
+          </li>
+        ))
+      }
+    </ol>
+
+    <div class="reveal mt-8 space-y-4 lg:mt-0">
+      <div class="rounded-card bg-paper-dim p-6">
+        <div class="mb-4 flex items-center gap-2 text-muted">
+          <Icon name="lucide:rocket" class="h-4 w-4" />
+          <span class="font-mono text-xs uppercase tracking-[0.15em]">Internships</span>
+        </div>
+        <ul class="space-y-3">
+          {
+            internships.map((i) => (
+              <li class="flex items-start justify-between gap-3 border-b border-line pb-2 last:border-b-0 last:pb-0">
+                <div>
+                  <p class="text-sm font-medium text-ink">{i.title}</p>
+                  <p class="text-xs text-muted">{i.org}</p>
+                </div>
+                <span class="shrink-0 font-mono text-[0.62rem] uppercase tracking-[0.12em] text-muted">{i.period}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <div class="rounded-card bg-paper-dim p-6">
+        <div class="mb-4 flex items-center gap-2 text-muted">
+          <Icon name="lucide:book-open" class="h-4 w-4" />
+          <span class="font-mono text-xs uppercase tracking-[0.15em]">Courses</span>
+        </div>
+        <ul class="space-y-2.5">
+          {
+            courses.map((c) => (
+              <li class="text-sm text-ink/75">
+                <span class="font-medium text-ink">{c.title}</span>
+                <span class="text-muted"> — {c.org}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>

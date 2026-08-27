@@ -1,0 +1,103 @@
+---
+import Layout from "../layouts/Layout.astro";
+import IconRail from "../components/IconRail.astro";
+import MobileNav from "../components/MobileNav.astro";
+import Hero from "../components/Hero.astro";
+import About from "../components/About.astro";
+import Skills from "../components/Skills.astro";
+import Work from "../components/Work.astro";
+import Experience from "../components/Experience.astro";
+import Contact from "../components/Contact.astro";
+import Footer from "../components/Footer.astro";
+import { blogPosts } from "../data/profile";
+
+const featuredBlog = blogPosts.find((post) => post.featured) ?? blogPosts[0];
+---
+
+<Layout>
+  <div class="workflow-shell min-h-screen p-2 sm:p-4 lg:p-5">
+    <div class="workflow-bg" aria-hidden="true">
+      <div class="workflow-grid"></div>
+      <div class="workflow-orbit orbit-a"></div>
+      <div class="workflow-orbit orbit-b"></div>
+
+      <div class="workflow-line line-1"></div>
+      <div class="workflow-line line-2"></div>
+      <div class="workflow-line line-3"></div>
+      <div class="workflow-line line-4"></div>
+      <div class="workflow-line line-5"></div>
+
+      <div class="flow-card card-input">
+        <span class="flow-label">Input</span>
+        <span class="flow-status live">Live</span>
+      </div>
+      <div class="flow-card card-agent">
+        <span class="flow-label">AI Agent</span>
+        <span class="flow-status run">Running</span>
+      </div>
+      <div class="flow-card card-llm">
+        <span class="flow-label">LLM</span>
+        <span class="flow-status proc">Processing</span>
+      </div>
+      <div class="flow-card card-tools">
+        <span class="flow-label">Tools</span>
+        <span class="flow-status ok">Connected</span>
+      </div>
+      <div class="flow-card card-memory">
+        <span class="flow-label">Memory</span>
+        <span class="flow-status sync">Sync</span>
+      </div>
+      <div class="flow-card card-output">
+        <span class="flow-label">Output</span>
+        <span class="flow-status done">Completed</span>
+      </div>
+
+      <div class="data-packet packet-1"></div>
+      <div class="data-packet packet-2"></div>
+      <div class="data-packet packet-3"></div>
+      <div class="data-packet packet-4"></div>
+      <div class="data-packet packet-5"></div>
+    </div>
+
+    <div class="mx-auto max-w-[1500px] overflow-hidden rounded-frame bg-paper/93 shadow-[0_30px_80px_rgba(15,19,18,0.08)] backdrop-blur-[2px] lg:flex lg:items-stretch">
+      <IconRail />
+
+      <div class="min-w-0 flex-1">
+        <MobileNav />
+        <main>
+          <Hero />
+          <About />
+          <Skills />
+          <Work />
+          <Experience />
+          <section id="blog-preview" class="border-t border-line px-5 py-16 sm:px-10">
+            <div class="flex flex-wrap items-end justify-between gap-4">
+              <div class="reveal">
+                <p class="font-mono text-xs uppercase tracking-[0.22em] text-muted">Blog</p>
+                <h2 class="mt-3 font-display text-4xl font-bold tracking-tight text-ink sm:text-5xl">Fresh ideas and practical lessons.</h2>
+              </div>
+              <a href="/blog" class="reveal inline-flex items-center gap-2 rounded-pill border border-ink/20 px-5 py-2.5 text-sm font-semibold text-ink transition-colors hover:border-ink">Read the blog</a>
+            </div>
+
+            <div class="reveal mt-8 overflow-hidden rounded-card border border-line bg-paper-dim">
+              <div class="grid gap-0 md:grid-cols-[1.15fr_0.85fr]">
+                <img src={featuredBlog.image} alt={featuredBlog.title} class="h-64 w-full object-cover md:h-full" loading="lazy" />
+                <div class="flex flex-col justify-center p-6 sm:p-8">
+                  <p class="font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted">{featuredBlog.category}</p>
+                  <h3 class="mt-3 font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl">{featuredBlog.title}</h3>
+                  <p class="mt-3 text-sm leading-relaxed text-ink/70">{featuredBlog.excerpt}</p>
+                  <div class="mt-5 flex items-center justify-between gap-4">
+                    <span class="text-xs text-muted">{featuredBlog.readTime}</span>
+                    <a href={`/blog/${featuredBlog.slug}`} class="inline-flex items-center gap-2 rounded-pill bg-ink px-4 py-2 text-sm font-semibold text-paper hover:bg-ink-soft">Read post</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+          <Contact />
+        </main>
+        <Footer />
+      </div>
+    </div>
+  </div>
+</Layout>
