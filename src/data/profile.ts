@@ -230,7 +230,7 @@ export const blogPosts: BlogPost[] = [
     author: person.name,
     date: "2026-08-08",
     readTime: "5 min read",
-    image: "/images/og-image.svg",
+    image: "/og-image.svg",
     featured: true,
     keywords: ["Astro", "Next.js", "small business website", "SEO"],
   },
@@ -246,7 +246,7 @@ export const blogPosts: BlogPost[] = [
     author: person.name,
     date: "2026-07-22",
     readTime: "4 min read",
-    image: "/images/og-image.svg",
+    image: "/og-image.svg",
     keywords: ["web design trust", "premium UX", "conversion-focused design"],
   },
   {
@@ -261,7 +261,7 @@ export const blogPosts: BlogPost[] = [
     author: person.name,
     date: "2026-06-14",
     readTime: "6 min read",
-    image: "/images/og-image.svg",
+    image: "/og-image.svg",
     keywords: ["SEO checklist", "technical SEO", "schema markup", "Core Web Vitals"],
   },
   {
@@ -276,7 +276,7 @@ export const blogPosts: BlogPost[] = [
     author: person.name,
     date: "2026-05-18",
     readTime: "5 min read",
-    image: "/images/og-image.svg",
+    image: "/og-image.svg",
     keywords: ["portfolio leads", "freelance portfolio", "client conversion"],
   },
 ];
