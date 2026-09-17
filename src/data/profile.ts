@@ -8,7 +8,7 @@ export const person = {
   location: "Charsadda, Khyber Pakhtunkhwa, Pakistan",
   email: "muhammadtalhapro1@gmail.com",
   phone: "+92 347 2937773",
-  github: "https://github.com/MTLabs1122",
+  github: "https://github.com/MTLab1122",
   linkedin: "https://www.linkedin.com/in/mtlabs1122/",
   resumeUrl: "/Muhammad-Talha-Resume.pdf",
   photo: "/images/profile-photo.png",
@@ -90,7 +90,7 @@ export const projects: Project[] = [
     outcome: "A static, responsive portfolio with strong metadata, focused calls to action, and a lightweight interaction layer.",
     tags: ["Astro", "TypeScript", "Tailwind"],
     href: "#",
-    repo: "https://github.com/MTLabs1122",
+    repo: "https://github.com/MTLab1122",
     featured: true,
   },
   {
@@ -102,7 +102,7 @@ export const projects: Project[] = [
     outcome: "A sharper product story with a flexible frontend foundation for future campaigns and content.",
     tags: ["Next.js", "MongoDB"],
     href: "#",
-    repo: "https://github.com/MTLabs1122",
+    repo: "https://github.com/MTLab1122",
   },
   {
     slug: "workflow-automation-tool",
@@ -113,7 +113,7 @@ export const projects: Project[] = [
     outcome: "A clearer internal workflow that reduces repetitive steps and makes progress easier to inspect.",
     tags: ["Node.js", "Python"],
     href: "#",
-    repo: "https://github.com/MTLabs1122",
+    repo: "https://github.com/MTLab1122",
   },
 ];
 
