@@ -29,7 +29,7 @@ const initials = person.name
     </button>
   </div>
 
-  <nav id="mobile-nav-menu" class="hidden grid-cols-2 gap-2 pt-4 pb-2">
+  <nav id="mobile-nav-menu" class="mobile-nav-menu grid-cols-2 gap-2 pt-4 pb-2" aria-hidden="true" inert>
     {
       nav.map((item) => (
         <a
@@ -50,8 +50,10 @@ const initials = person.name
   const iconClose = document.getElementById("icon-close");
 
   toggle?.addEventListener("click", () => {
-    const isOpen = menu?.classList.toggle("hidden") === false;
-    menu?.classList.toggle("grid", isOpen);
+    const isOpen = toggle.getAttribute("aria-expanded") !== "true";
+    menu?.classList.toggle("is-open", isOpen);
+    menu?.setAttribute("aria-hidden", String(!isOpen));
+    menu?.toggleAttribute("inert", !isOpen);
     toggle.setAttribute("aria-expanded", String(isOpen));
     iconMenu?.classList.toggle("hidden", isOpen);
     iconClose?.classList.toggle("hidden", !isOpen);
@@ -59,11 +61,19 @@ const initials = person.name
 
   document.querySelectorAll(".mobile-nav-link").forEach((link) => {
     link.addEventListener("click", () => {
-      menu?.classList.add("hidden");
-      menu?.classList.remove("grid");
+      menu?.classList.remove("is-open");
+      menu?.setAttribute("aria-hidden", "true");
+      menu?.setAttribute("inert", "");
       toggle?.setAttribute("aria-expanded", "false");
       iconMenu?.classList.remove("hidden");
       iconClose?.classList.add("hidden");
     });
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && toggle?.getAttribute("aria-expanded") === "true") {
+      toggle.click();
+      toggle.focus();
+    }
   });
 </script>

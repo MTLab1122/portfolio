@@ -1,4 +1,5 @@
 import type { APIRoute } from "astro";
+import { projects } from "../data/profile";
 
 export const GET: APIRoute = ({ site }) => {
   const base = `${(site ?? "https://mtlab1122.github.io/portfolio/").toString().replace(/\/+$/, "")}/`;
@@ -9,6 +10,7 @@ export const GET: APIRoute = ({ site }) => {
     "blog/building-trust-through-premium-web-design",
     "blog/seo-checklist-for-developers-and-founders",
     "blog/how-to-turn-a-portfolio-into-client-leads",
+    ...projects.map((project) => `projects/${project.slug}`),
   ];
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>

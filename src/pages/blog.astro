@@ -7,7 +7,7 @@ const pageDescription = `Read practical insights on web development, SEO, design
 const posts = blogPosts;
 const featuredPost = posts.find((post) => post.featured) ?? posts[0];
 const regularPosts = posts.filter((post) => post.slug !== featuredPost.slug);
-const baseUrl = `${import.meta.env.BASE_URL}/`;
+const baseUrl = import.meta.env.BASE_URL.endsWith("/") ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
 ---
 
 <Layout title={pageTitle} description={pageDescription}>

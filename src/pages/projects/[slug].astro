@@ -1,0 +1,57 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { person, projects } from "../../data/profile";
+
+export function getStaticPaths() {
+  return projects.map((project) => ({ params: { slug: project.slug }, props: { project } }));
+}
+
+const { project } = Astro.props;
+const baseUrl = import.meta.env.BASE_URL.endsWith("/") ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
+const pageTitle = `${project.title} | ${person.name}`;
+const pageDescription = `${project.description} Case study by ${person.name}, software engineer and frontend developer.`;
+const projectSchema = {
+  "@context": "https://schema.org",
+  "@type": "CreativeWork",
+  name: project.title,
+  description: pageDescription,
+  creator: { "@type": "Person", name: person.name, url: Astro.url.origin + baseUrl },
+  keywords: project.tags.join(", "),
+  url: Astro.url.href,
+};
+---
+
+<Layout title={pageTitle} description={pageDescription} structuredData={projectSchema}>
+  <div class="min-h-screen bg-sage px-4 py-5 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-5xl overflow-hidden rounded-[2rem] border border-ink/10 bg-paper shadow-[0_30px_80px_rgba(20,21,15,0.08)]">
+      <header class="border-b border-line px-5 py-5 sm:px-8 lg:px-10">
+        <nav class="flex flex-wrap items-center gap-2 text-sm text-ink/70" aria-label="Breadcrumb">
+          <a href={baseUrl} class="font-medium text-ink hover:text-ink/80">Home</a>
+          <span aria-hidden="true">/</span>
+          <a href={`${baseUrl}#work`} class="font-medium text-ink hover:text-ink/80">Work</a>
+          <span aria-hidden="true">/</span>
+          <span class="font-semibold text-ink">{project.title}</span>
+        </nav>
+      </header>
+      <main class="px-5 py-10 sm:px-8 lg:px-10 lg:py-16">
+        <article class="mx-auto max-w-3xl">
+          <p class="font-mono text-xs uppercase tracking-[0.2em] text-muted">Case study · {project.tags.join(" · ")}</p>
+          <h1 class="mt-4 font-display text-4xl font-bold tracking-tight text-ink sm:text-6xl">{project.title}</h1>
+          <p class="mt-6 text-xl leading-relaxed text-ink/75">{project.description}</p>
+          <div class="mt-10 grid gap-5 sm:grid-cols-3">
+            <section class="rounded-card bg-paper-dim p-5"><h2 class="font-display text-lg font-semibold text-ink">The problem</h2><p class="mt-3 text-sm leading-relaxed text-ink/70">{project.problem}</p></section>
+            <section class="rounded-card bg-paper-dim p-5"><h2 class="font-display text-lg font-semibold text-ink">The approach</h2><p class="mt-3 text-sm leading-relaxed text-ink/70">{project.approach}</p></section>
+            <section class="rounded-card bg-ink p-5 text-paper"><h2 class="font-display text-lg font-semibold">The outcome</h2><p class="mt-3 text-sm leading-relaxed text-paper/75">{project.outcome}</p></section>
+          </div>
+          <div class="mt-10 flex flex-wrap gap-3">
+            {project.tags.map((tag) => <span class="rounded-pill border border-line bg-paper-dim px-3 py-1.5 text-xs font-mono uppercase tracking-[0.14em] text-muted">{tag}</span>)}
+          </div>
+          <div class="mt-12 flex flex-wrap gap-3">
+            <a href={`${baseUrl}#contact`} class="inline-flex min-h-12 items-center rounded-pill bg-ink px-5 py-3 text-sm font-semibold text-paper hover:bg-ink-soft">Start a project</a>
+            <a href={`${baseUrl}#work`} class="inline-flex min-h-12 items-center rounded-pill border border-ink/20 px-5 py-3 text-sm font-semibold text-ink hover:border-ink">Back to selected work</a>
+          </div>
+        </article>
+      </main>
+    </div>
+  </div>
+</Layout>

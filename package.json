@@ -17,7 +17,8 @@
     "@fontsource/space-grotesk": "^5.3.0",
     "@iconify-json/lucide": "^1.2.126",
     "astro": "^7.2.8",
-    "astro-icon": "^1.2.0"
+    "astro-icon": "^1.2.0",
+    "gsap": "^3.15.0"
   },
   "allowScripts": {
     "esbuild": true

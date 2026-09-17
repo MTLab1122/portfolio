@@ -14,9 +14,9 @@ export const person = {
   photo: "/images/profile-photo.png",
   photoAlt: "Muhammad Talha portrait",
   siteName: "Muhammad Talha",
-  seoTitle: "Muhammad Talha — Software Engineer & Web Developer",
+  seoTitle: "Software Engineer Portfolio | Muhammad Talha",
   seoDescription:
-    "Muhammad Talha is a software engineer and web developer building premium, conversion-focused websites and web apps with Astro, Next.js, TypeScript, and Node.js.",
+    "Muhammad Talha is a software engineer and frontend developer in Khyber Pakhtunkhwa building fast, SEO-ready websites with Astro, Next.js, and TypeScript.",
   keywords: [
     "Muhammad Talha",
     "software engineer Pakistan",
@@ -25,6 +25,8 @@ export const person = {
     "Next.js developer",
     "portfolio website",
     "freelance web developer",
+    "frontend developer Peshawar",
+    "software engineer portfolio",
   ],
   // Kept honest and specific rather than the generic "7 years / Java / React /
   // healthcare" line from the source resume, which didn't match the rest of
@@ -64,8 +66,12 @@ export const skills = {
 };
 
 export type Project = {
+  slug: string;
   title: string;
   description: string;
+  problem: string;
+  approach: string;
+  outcome: string;
   tags: string[];
   href?: string;
   repo?: string;
@@ -76,23 +82,35 @@ export type Project = {
 // focused description, tags, and a live/repo link. Keep 3-6 for a tight page.
 export const projects: Project[] = [
   {
+    slug: "portfolio-system-redesign",
     title: "Portfolio system redesign",
     description: "Fast, premium portfolio experience built to communicate skill, credibility, and clear CTAs without clutter.",
+    problem: "The original portfolio needed a clearer story, stronger proof, and a faster path from first impression to contact.",
+    approach: "I rebuilt the structure in Astro with semantic sections, self-hosted fonts, reusable content data, and motion that supports scanning instead of delaying it.",
+    outcome: "A static, responsive portfolio with strong metadata, focused calls to action, and a lightweight interaction layer.",
     tags: ["Astro", "TypeScript", "Tailwind"],
     href: "#",
     repo: "https://github.com/MTLabs1122",
     featured: true,
   },
   {
+    slug: "frontend-product-landing-page",
     title: "Frontend product landing page",
     description: "High-conversion marketing page focused on positioning, visual clarity, and mobile-first responsiveness.",
+    problem: "The product needed to explain its value quickly to visitors arriving from search, social, and direct outreach.",
+    approach: "I shaped the page around a focused message hierarchy, responsive components, and conversion points that remain clear on small screens.",
+    outcome: "A sharper product story with a flexible frontend foundation for future campaigns and content.",
     tags: ["Next.js", "MongoDB"],
     href: "#",
     repo: "https://github.com/MTLabs1122",
   },
   {
+    slug: "workflow-automation-tool",
     title: "Workflow automation tool",
     description: "A lightweight internal tool for organizing repetitive tasks, data handling, and faster daily operations.",
+    problem: "Repeated manual operations made routine data handling slower and harder to review consistently.",
+    approach: "I mapped the workflow into smaller states and connected a practical interface to lightweight Node.js and Python tooling.",
+    outcome: "A clearer internal workflow that reduces repetitive steps and makes progress easier to inspect.",
     tags: ["Node.js", "Python"],
     href: "#",
     repo: "https://github.com/MTLabs1122",

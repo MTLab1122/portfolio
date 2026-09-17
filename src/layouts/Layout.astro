@@ -13,15 +13,18 @@ interface Props {
   title?: string;
   description?: string;
   image?: string;
+  structuredData?: Record<string, unknown>;
 }
 
 const {
   title = person.seoTitle,
   description = person.seoDescription,
   image = "/og-image.svg",
+  structuredData,
 } = Astro.props;
 
 const baseUrl = import.meta.env.BASE_URL.endsWith("/") ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
+const isHomepage = Astro.url.pathname === "/" || Astro.url.pathname === baseUrl;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const ogImage = new URL(image.replace(/^\/+/, ""), `${Astro.site}/`).toString();
 const schema = {
@@ -42,6 +45,7 @@ const schema = {
   },
   sameAs: [person.github, person.linkedin],
 };
+const schemas = structuredData ? [schema, structuredData] : [schema];
 ---
 
 <!doctype html>
@@ -70,12 +74,24 @@ const schema = {
     <meta name="twitter:image" content={ogImage} />
     <meta name="twitter:site" content="@mtlabs1122" />
     <title>{title}</title>
-    <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(schemas)} />
   </head>
   <body class="antialiased">
+    {isHomepage && (
+      <div class="intro-veil" data-intro-veil>
+        <div class="intro-mark" aria-hidden="true">
+          <span>{person.name.split(" ")[0]}</span>
+          <span>{person.name.split(" ").slice(1).join(" ")}</span>
+        </div>
+        <p class="intro-caption">Independent digital studio</p>
+        <button class="intro-skip" data-skip-intro type="button">Skip intro</button>
+      </div>
+    )}
+    <div class="scroll-progress" data-scroll-progress aria-hidden="true"></div>
     <slot />
 
     <script>
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       const io = new IntersectionObserver(
         (entries) => {
           for (const entry of entries) {
@@ -88,7 +104,57 @@ const schema = {
         { threshold: 0.12 },
       );
 
-      document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
+      document.querySelectorAll(".reveal").forEach((element, index) => {
+        const el = element as HTMLElement;
+        el.style.setProperty("--reveal-delay", `${Math.min(index % 5, 4) * 70}ms`);
+        io.observe(el);
+      });
+
+      const progress = document.querySelector<HTMLElement>("[data-scroll-progress]");
+      let progressFrame = 0;
+      const updateProgress = () => {
+        const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+        progress?.style.setProperty("--scroll-progress", `${scrollable > 0 ? window.scrollY / scrollable : 0}`);
+        progressFrame = 0;
+      };
+      updateProgress();
+      window.addEventListener("scroll", () => {
+        if (!progressFrame) progressFrame = requestAnimationFrame(updateProgress);
+      }, { passive: true });
+
+      const shell = document.querySelector(".workflow-shell") as HTMLElement | null;
+      if (!reduceMotion && shell) {
+        let pointerFrame = 0;
+        let pointerX = 0;
+        let pointerY = 0;
+        const updatePointer = () => {
+          shell.style.setProperty("--pointer-x", `${pointerX}`);
+          shell.style.setProperty("--pointer-y", `${pointerY}`);
+          pointerFrame = 0;
+        };
+        window.addEventListener("pointermove", (event) => {
+          pointerX = (event.clientX / window.innerWidth - 0.5) * 2;
+          pointerY = (event.clientY / window.innerHeight - 0.5) * 2;
+          if (!pointerFrame) pointerFrame = requestAnimationFrame(updatePointer);
+        }, { passive: true });
+      }
+
+      const veil = document.querySelector("[data-intro-veil]");
+      if (veil) {
+        const dismiss = () => {
+          veil.classList.add("is-dismissed");
+          veil.setAttribute("inert", "");
+        };
+        document.querySelector("[data-skip-intro]")?.addEventListener("click", () => {
+          sessionStorage.setItem("portfolio-intro-seen", "true");
+          dismiss();
+        });
+        if (reduceMotion || sessionStorage.getItem("portfolio-intro-seen")) {
+          dismiss();
+        } else {
+          window.setTimeout(dismiss, 2100);
+        }
+      }
     </script>
   </body>
 </html>
