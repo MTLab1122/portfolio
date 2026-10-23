@@ -3,42 +3,379 @@ import { Icon } from "astro-icon/components";
 import { person } from "../data/profile";
 ---
 
-<section id="contact" class="border-t border-line px-5 py-16 sm:px-10">
-  <div class="reveal rounded-frame bg-ink px-6 py-14 text-center sm:px-14 sm:py-16">
-    <p class="mb-4 font-mono text-xs uppercase tracking-[0.22em] text-lime">Contact</p>
-    <h2 class="mx-auto max-w-2xl font-display text-3xl font-bold leading-tight tracking-tight text-paper sm:text-5xl">
-      Need a premium website that actually converts?
-    </h2>
-    <p class="mx-auto mt-5 max-w-lg text-paper/65">
-      I design and build polished digital experiences for founders, creatives, and growing businesses.
-    </p>
+<section id="contact" class="border-t border-line px-5 py-16 sm:px-10 lg:py-20">
+  <div class="reveal rounded-[2.5rem] bg-ink px-6 py-12 text-paper sm:px-12 sm:py-16 lg:px-16 lg:py-20 shadow-[0_30px_80px_rgba(0,0,0,0.3)]">
+    <div class="grid gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16 items-start">
+      
+      <!-- Left Column: Direct Channels & Timezone -->
+      <div>
+        <div class="inline-flex items-center gap-2 rounded-pill bg-white/10 px-3.5 py-1 text-xs font-mono uppercase tracking-[0.2em] text-lime">
+          <span class="h-2 w-2 rounded-full bg-lime"></span>
+          <span>Contact & Collaboration</span>
+        </div>
 
-    <div class="mt-9 flex flex-wrap items-center justify-center gap-3">
-      <a
-        href={`mailto:${person.email}`}
-        class="inline-flex items-center gap-2 rounded-pill bg-lime px-7 py-3.5 text-sm font-semibold text-ink transition-colors hover:bg-paper"
-      >
-        <Icon name="lucide:mail" class="h-4 w-4" />
-        {person.email}
-      </a>
-      <a
-        href={person.linkedin}
-        target="_blank"
-        rel="noopener noreferrer"
-        class="inline-flex items-center gap-2 rounded-pill border border-paper/25 px-6 py-3.5 text-sm font-semibold text-paper transition-colors hover:border-paper"
-      >
-        <Icon name="lucide:linkedin" class="h-4 w-4" />
-        LinkedIn
-      </a>
-      <a
-        href={person.github}
-        target="_blank"
-        rel="noopener noreferrer"
-        class="inline-flex items-center gap-2 rounded-pill border border-paper/25 px-6 py-3.5 text-sm font-semibold text-paper transition-colors hover:border-paper"
-      >
-        <Icon name="lucide:github" class="h-4 w-4" />
-        GitHub
-      </a>
+        <h2 class="mt-5 font-display text-3xl font-bold leading-tight tracking-tight text-paper sm:text-5xl">
+          Let's build something exceptional together.
+        </h2>
+
+        <p class="mt-4 text-base leading-relaxed text-paper/75 sm:text-lg">
+          Whether you need an ultra-fast website built with Astro and Next.js, an existing frontend redesigned, or a dedicated software engineer on your team — let's connect.
+        </p>
+
+        <!-- Direct Contact Action Cards -->
+        <div class="mt-8 space-y-3">
+          <!-- 1-Click Copy Email Card -->
+          <div class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 transition-colors hover:border-lime/40">
+            <div class="flex items-center gap-3">
+              <span class="grid h-10 w-10 place-items-center rounded-xl bg-lime text-ink">
+                <Icon name="lucide:mail" class="h-5 w-5" />
+              </span>
+              <div>
+                <p class="font-mono text-[0.62rem] uppercase tracking-wider text-paper/60">Email Address</p>
+                <a href={`mailto:${person.email}`} class="font-mono text-sm font-semibold text-paper hover:text-lime transition-colors">
+                  {person.email}
+                </a>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              id="copy-email-btn"
+              data-email={person.email}
+              class="inline-flex items-center gap-1.5 rounded-pill border border-white/20 bg-white/10 px-3.5 py-1.5 text-xs font-semibold text-paper transition-all hover:bg-lime hover:text-ink hover:border-lime"
+              aria-label="Copy email address to clipboard"
+            >
+              <Icon name="lucide:copy" class="h-3.5 w-3.5" id="copy-email-icon" />
+              <span id="copy-email-text">Copy</span>
+            </button>
+          </div>
+
+          <!-- WhatsApp / Direct Phone -->
+          <a
+            href={person.whatsapp}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 p-4 transition-colors hover:border-lime/40 group"
+          >
+            <div class="flex items-center gap-3">
+              <span class="grid h-10 w-10 place-items-center rounded-xl bg-white/10 text-paper group-hover:bg-lime group-hover:text-ink transition-colors">
+                <Icon name="lucide:phone" class="h-5 w-5" />
+              </span>
+              <div>
+                <p class="font-mono text-[0.62rem] uppercase tracking-wider text-paper/60">Phone & WhatsApp</p>
+                <p class="font-mono text-sm font-semibold text-paper">{person.phone}</p>
+              </div>
+            </div>
+            <Icon name="lucide:arrow-up-right" class="h-5 w-5 text-paper/50 group-hover:text-lime group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+          </a>
+
+          <!-- Social Links Row -->
+          <div class="grid grid-cols-2 gap-3 pt-2">
+            <a
+              href={person.linkedin}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-xs font-semibold text-paper hover:border-lime/40 hover:bg-white/10 transition-colors group"
+            >
+              <span class="flex items-center gap-2">
+                <Icon name="lucide:linkedin" class="h-4 w-4 text-lime" />
+                LinkedIn
+              </span>
+              <Icon name="lucide:arrow-up-right" class="h-3.5 w-3.5 text-paper/50 group-hover:text-paper" />
+            </a>
+
+            <a
+              href={person.github}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-xs font-semibold text-paper hover:border-lime/40 hover:bg-white/10 transition-colors group"
+            >
+              <span class="flex items-center gap-2">
+                <Icon name="lucide:github" class="h-4 w-4 text-lime" />
+                GitHub
+              </span>
+              <Icon name="lucide:arrow-up-right" class="h-3.5 w-3.5 text-paper/50 group-hover:text-paper" />
+            </a>
+          </div>
+        </div>
+
+        <!-- Live Local Timezone Clock Widget -->
+        <div class="mt-8 flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 p-4">
+          <div class="flex items-center gap-3">
+            <span class="grid h-9 w-9 place-items-center rounded-lg bg-white/10 text-lime">
+              <Icon name="lucide:clock" class="h-4 w-4" />
+            </span>
+            <div>
+              <p class="font-mono text-[0.62rem] uppercase tracking-wider text-paper/60">Local Time (PKT • UTC+5)</p>
+              <p class="font-mono text-base font-bold text-lime" id="live-time-display">--:--:-- PKT</p>
+            </div>
+          </div>
+          <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/20 px-2.5 py-1 text-[0.65rem] font-mono text-emerald-300">
+            <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            Usually fast replies
+          </span>
+        </div>
+      </div>
+
+      <!-- Right Column: Interactive Contact Form -->
+      <div class="rounded-3xl border border-white/15 bg-white/5 p-6 sm:p-8 backdrop-blur-sm">
+        <h3 class="font-display text-xl font-bold text-paper sm:text-2xl">
+          Send a direct message
+        </h3>
+        <p class="mt-1 text-xs text-paper/60 font-mono">
+          I will respond within 24 hours.
+        </p>
+
+        <!-- Form status notification banner -->
+        <div id="form-alert" class="mt-4 hidden rounded-xl p-3.5 text-xs font-medium" role="alert"></div>
+
+        <form id="contact-form" class="mt-6 space-y-4" novalidate>
+          <!-- Name Input -->
+          <div>
+            <label for="contact-name" class="block font-mono text-xs uppercase tracking-wider text-paper/80">
+              Your Name <span class="text-lime">*</span>
+            </label>
+            <input
+              type="text"
+              id="contact-name"
+              name="name"
+              autocomplete="name"
+              required
+              minlength="2"
+              placeholder="e.g. Alex Henderson"
+              class="mt-1.5 w-full rounded-xl border border-white/20 bg-white/10 px-4 py-3 text-sm text-paper placeholder:text-paper/40 transition-colors focus:border-lime focus:bg-white/15 focus:outline-none"
+            />
+            <p class="mt-1 hidden text-xs text-rose-300 field-error" id="name-error">Please enter your name (at least 2 characters).</p>
+          </div>
+
+          <!-- Email Input -->
+          <div>
+            <label for="contact-email" class="block font-mono text-xs uppercase tracking-wider text-paper/80">
+              Email Address <span class="text-lime">*</span>
+            </label>
+            <input
+              type="email"
+              id="contact-email"
+              name="email"
+              autocomplete="email"
+              required
+              placeholder="e.g. alex@company.com"
+              class="mt-1.5 w-full rounded-xl border border-white/20 bg-white/10 px-4 py-3 text-sm text-paper placeholder:text-paper/40 transition-colors focus:border-lime focus:bg-white/15 focus:outline-none"
+            />
+            <p class="mt-1 hidden text-xs text-rose-300 field-error" id="email-error">Please enter a valid email address.</p>
+          </div>
+
+          <!-- Project Type Selector -->
+          <div>
+            <label for="contact-type" class="block font-mono text-xs uppercase tracking-wider text-paper/80">
+              Inquiry Type
+            </label>
+            <select
+              id="contact-type"
+              name="projectType"
+              class="mt-1.5 w-full rounded-xl border border-white/20 bg-ink-soft px-4 py-3 text-sm text-paper transition-colors focus:border-lime focus:outline-none"
+            >
+              <option value="New Website or App">New Website or Application (Astro / Next.js)</option>
+              <option value="Frontend Redesign">Frontend Redesign & Performance Optimization</option>
+              <option value="Software Engineer Role">Full-Time / Contract Engineering Role</option>
+              <option value="Technical Consultation">Technical Consultation & Mentorship</option>
+              <option value="General Inquiry">General Question / Say Hello</option>
+            </select>
+          </div>
+
+          <!-- Message Textarea with Character Counter -->
+          <div>
+            <div class="flex items-center justify-between">
+              <label for="contact-message" class="block font-mono text-xs uppercase tracking-wider text-paper/80">
+                Message <span class="text-lime">*</span>
+              </label>
+              <span class="font-mono text-[0.65rem] text-paper/50" id="char-counter">0 / 1000</span>
+            </div>
+            <textarea
+              id="contact-message"
+              name="message"
+              required
+              minlength="10"
+              maxlength="1000"
+              rows="4"
+              placeholder="Tell me a bit about your project, timeline, and goals..."
+              class="mt-1.5 w-full rounded-xl border border-white/20 bg-white/10 px-4 py-3 text-sm text-paper placeholder:text-paper/40 transition-colors focus:border-lime focus:bg-white/15 focus:outline-none"
+            ></textarea>
+            <p class="mt-1 hidden text-xs text-rose-300 field-error" id="message-error">Please enter at least 10 characters.</p>
+          </div>
+
+          <!-- Submit Button -->
+          <button
+            type="submit"
+            id="form-submit-btn"
+            class="group w-full inline-flex items-center justify-center gap-2 rounded-pill bg-lime py-3.5 text-sm font-bold text-ink transition-all duration-200 hover:bg-paper hover:shadow-[0_0_25px_rgba(216,250,62,0.4)] disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <span id="submit-btn-text">Send message</span>
+            <Icon name="lucide:send" class="h-4 w-4 transition-transform group-hover:translate-x-0.5" id="submit-btn-icon" />
+            <Icon name="lucide:loader-2" class="h-4 w-4 animate-spin hidden" id="submit-btn-spinner" />
+          </button>
+        </form>
+
+        <!-- Post-submit quick email action -->
+        <div id="post-submit-actions" class="mt-4 hidden text-center">
+          <button
+            type="button"
+            id="open-mailto-btn"
+            class="inline-flex items-center gap-1.5 text-xs text-lime underline underline-offset-4 hover:text-paper transition-colors"
+          >
+            <span>Open formatted draft in default mail app</span>
+            <Icon name="lucide:external-link" class="h-3 w-3" />
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </section>
+
+<script>
+  // Live Clock for Charsadda / Pakistan (PKT - UTC+5)
+  const timeDisplay = document.getElementById("live-time-display");
+  const updateTime = () => {
+    if (!timeDisplay) return;
+    try {
+      const now = new Date();
+      const options: Intl.DateTimeFormatOptions = {
+        timeZone: "Asia/Karachi",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true,
+      };
+      timeDisplay.textContent = `${now.toLocaleTimeString("en-US", options)} PKT`;
+    } catch {
+      timeDisplay.textContent = new Date().toLocaleTimeString();
+    }
+  };
+  updateTime();
+  setInterval(updateTime, 1000);
+
+  // Copy Email Button Logic
+  const copyBtn = document.getElementById("copy-email-btn");
+  const copyText = document.getElementById("copy-email-text");
+  copyBtn?.addEventListener("click", async () => {
+    const email = copyBtn.getAttribute("data-email");
+    if (!email) return;
+    try {
+      await navigator.clipboard.writeText(email);
+      if (copyText) copyText.textContent = "Copied!";
+      if (typeof window.showToast === "function") {
+        window.showToast("Email copied to clipboard!");
+      }
+      setTimeout(() => {
+        if (copyText) copyText.textContent = "Copy";
+      }, 2500);
+    } catch {
+      window.location.href = `mailto:${email}`;
+    }
+  });
+
+  // Character Counter
+  const messageInput = document.getElementById("contact-message") as HTMLTextAreaElement | null;
+  const charCounter = document.getElementById("char-counter");
+  messageInput?.addEventListener("input", () => {
+    if (charCounter && messageInput) {
+      charCounter.textContent = `${messageInput.value.length} / 1000`;
+    }
+  });
+
+  // Contact Form Validation & Submission
+  const form = document.getElementById("contact-form") as HTMLFormElement | null;
+  const nameInput = document.getElementById("contact-name") as HTMLInputElement | null;
+  const emailInput = document.getElementById("contact-email") as HTMLInputElement | null;
+  const typeSelect = document.getElementById("contact-type") as HTMLSelectElement | null;
+  const submitBtn = document.getElementById("form-submit-btn") as HTMLButtonElement | null;
+  const submitText = document.getElementById("submit-btn-text");
+  const submitIcon = document.getElementById("submit-btn-icon");
+  const submitSpinner = document.getElementById("submit-btn-spinner");
+  const formAlert = document.getElementById("form-alert");
+  const postSubmitActions = document.getElementById("post-submit-actions");
+  const openMailtoBtn = document.getElementById("open-mailto-btn");
+
+  let lastDraftedMailto = "";
+
+  openMailtoBtn?.addEventListener("click", () => {
+    if (lastDraftedMailto) {
+      window.location.href = lastDraftedMailto;
+    }
+  });
+
+  form?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    // Reset errors
+    document.querySelectorAll(".field-error").forEach((el) => el.classList.add("hidden"));
+    if (formAlert) {
+      formAlert.className = "mt-4 hidden rounded-xl p-3.5 text-xs font-medium";
+      formAlert.textContent = "";
+    }
+
+    let isValid = true;
+
+    // Validate Name
+    if (!nameInput || nameInput.value.trim().length < 2) {
+      document.getElementById("name-error")?.classList.remove("hidden");
+      if (isValid) nameInput?.focus();
+      isValid = false;
+    }
+
+    // Validate Email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailInput || !emailRegex.test(emailInput.value.trim())) {
+      document.getElementById("email-error")?.classList.remove("hidden");
+      if (isValid) emailInput?.focus();
+      isValid = false;
+    }
+
+    // Validate Message
+    if (!messageInput || messageInput.value.trim().length < 10) {
+      document.getElementById("message-error")?.classList.remove("hidden");
+      if (isValid) messageInput?.focus();
+      isValid = false;
+    }
+
+    if (!isValid) return;
+
+    // Format verified client-side mailto draft link
+    const mailtoSubject = encodeURIComponent(`[${projectType}] Inquiry from ${name}`);
+    const mailtoBody = encodeURIComponent(
+      `Hi Muhammad Talha,\n\n${message}\n\n---\nSender: ${name}\nEmail: ${email}\nInquiry Type: ${projectType}\nSent via Portfolio Contact Form`
+    );
+    lastDraftedMailto = `mailto:muhammadtalhapro1@gmail.com?subject=${mailtoSubject}&body=${mailtoBody}`;
+
+    // Reset button state
+    if (submitBtn) submitBtn.disabled = false;
+    submitText && (submitText.textContent = "Open in Email Client");
+    submitIcon?.classList.remove("hidden");
+    submitSpinner?.classList.add("hidden");
+
+    // Display honest feedback
+    if (formAlert) {
+      formAlert.className = "mt-4 block rounded-xl border border-lime/40 bg-white/10 p-4 text-xs font-medium text-paper";
+      formAlert.innerHTML = `
+        <div class="flex items-start gap-2.5">
+          <span class="font-bold text-sm text-lime">✓</span>
+          <div>
+            <p class="font-bold text-lime">Email draft created for ${name}!</p>
+            <p class="mt-1 text-paper/85 leading-relaxed">
+              Your inquiry has been formatted and directed to <strong>muhammadtalhapro1@gmail.com</strong>. Opening your mail client now...
+            </p>
+          </div>
+        </div>
+      `;
+    }
+
+    postSubmitActions?.classList.remove("hidden");
+
+    if (typeof window.showToast === "function") {
+      window.showToast("Email draft opened in your mail app!");
+    }
+
+    // Launch email client
+    window.location.href = lastDraftedMailto;
+  });
+</script>

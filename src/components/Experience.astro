@@ -4,68 +4,192 @@ import { experience, internships, courses } from "../data/profile";
 import SectionHeading from "./SectionHeading.astro";
 ---
 
-<section id="experience" class="border-t border-line px-5 py-16 sm:px-10">
-  <SectionHeading eyebrow="Experience" title="Career snapshot." />
+<section id="experience" class="border-t border-line px-5 py-16 sm:px-10 lg:py-20">
+  <div class="flex flex-wrap items-end justify-between gap-4">
+    <SectionHeading eyebrow="Experience & Background" title="Career snapshot & trajectory." />
 
-  <div class="mt-10 lg:grid lg:grid-cols-[1.2fr_0.8fr] lg:gap-8">
-    <ol class="reveal relative space-y-5 border-l border-line pl-8">
+    <!-- Tab switcher -->
+    <div class="reveal flex flex-wrap gap-2" id="exp-tab-buttons">
+      <button
+        type="button"
+        data-target="work-roles"
+        class="exp-tab-btn rounded-pill bg-ink px-4 py-2 text-xs font-semibold text-paper shadow-sm active-exp-tab"
+      >
+        Work Experience ({experience.length})
+      </button>
+      <button
+        type="button"
+        data-target="internships-list"
+        class="exp-tab-btn rounded-pill border border-ink/20 bg-paper px-4 py-2 text-xs font-semibold text-ink hover:border-ink hover:bg-white"
+      >
+        Internships ({internships.length})
+      </button>
+      <button
+        type="button"
+        data-target="courses-list"
+        class="exp-tab-btn rounded-pill border border-ink/20 bg-paper px-4 py-2 text-xs font-semibold text-ink hover:border-ink hover:bg-white"
+      >
+        Training & Courses ({courses.length})
+      </button>
+    </div>
+  </div>
+
+  <!-- Tab 1: Work Experience Timeline -->
+  <div class="exp-panel mt-12 grid gap-8 lg:grid-cols-[1.25fr_0.75fr]" id="panel-work-roles">
+    <ol class="reveal relative space-y-6 border-l-2 border-line/80 pl-6 sm:pl-8">
       {
-        experience.map((item) => (
-          <li class="relative rounded-card border border-line bg-paper-dim p-5">
-            <span class="absolute -left-[2.35rem] top-6 h-3 w-3 rounded-full border-2 border-ink bg-lime" />
-            <div class="flex flex-wrap items-center justify-between gap-2 text-[0.68rem] font-mono uppercase tracking-[0.14em] text-muted">
-              <span>{item.period}</span>
-              <span>{item.type}</span>
-            </div>
-            <h3 class="mt-3 font-display text-xl font-semibold text-ink">{item.role}</h3>
-            <p class="mt-1 text-sm text-ink/65">{item.org}</p>
-            <ul class="mt-3 space-y-2">
-              {item.bullets.map((b) => (
-                <li class="text-sm leading-relaxed text-ink/70">• {b}</li>
-              ))}
-            </ul>
-          </li>
-        ))
+        experience.map((item) => {
+          const isOngoing = item.period.toLowerCase().includes("ongoing");
+
+          return (
+            <li class="relative rounded-card border border-line bg-paper-card p-6 shadow-sm transition-all duration-200 hover:border-ink/40 hover:shadow-md">
+              <!-- Timeline node dot -->
+              <span class={`absolute -left-[2.1rem] sm:-left-[2.6rem] top-7 h-4 w-4 rounded-full border-2 border-ink ${
+                isOngoing ? "bg-emerald-500 animate-pulse" : "bg-lime"
+              }`} />
+
+              <div class="flex flex-wrap items-center justify-between gap-2 border-b border-line/50 pb-3">
+                <div class="flex items-center gap-2">
+                  <span class={`font-mono text-[0.68rem] font-bold uppercase tracking-[0.14em] ${
+                    isOngoing ? "text-emerald-700" : "text-muted"
+                  }`}>
+                    {item.period}
+                  </span>
+                  {isOngoing && (
+                    <span class="rounded bg-emerald-100 px-2 py-0.5 font-mono text-[0.58rem] font-bold text-emerald-800">
+                      Current
+                    </span>
+                  )}
+                </div>
+                <span class="rounded-full bg-paper px-2.5 py-1 font-mono text-[0.62rem] text-muted border border-line/60">
+                  {item.type}
+                </span>
+              </div>
+
+              <h3 class="mt-3 font-display text-xl font-bold text-ink sm:text-2xl">
+                {item.role}
+              </h3>
+              <p class="mt-1 text-sm font-medium text-ink/70">
+                {item.org}
+              </p>
+
+              <ul class="mt-3.5 space-y-1.5">
+                {item.bullets.map((b) => (
+                  <li class="flex items-start gap-2 text-sm leading-relaxed text-ink/75">
+                    <span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-lime"></span>
+                    <span>{b}</span>
+                  </li>
+                ))}
+              </ul>
+            </li>
+          );
+        })
       }
     </ol>
 
-    <div class="reveal mt-8 space-y-4 lg:mt-0">
-      <div class="rounded-card bg-paper-dim p-6">
-        <div class="mb-4 flex items-center gap-2 text-muted">
-          <Icon name="lucide:rocket" class="h-4 w-4" />
-          <span class="font-mono text-xs uppercase tracking-[0.15em]">Internships</span>
+    <!-- Side Highlights -->
+    <div class="reveal space-y-5">
+      <!-- Teaching & Instruction Highlight -->
+      <div class="rounded-card border border-line bg-ink p-7 text-paper shadow-md">
+        <div class="flex items-center gap-2 text-lime">
+          <Icon name="lucide:user-check" class="h-4 w-4" />
+          <span class="font-mono text-xs uppercase tracking-[0.16em]">Teaching Philosophy</span>
         </div>
-        <ul class="space-y-3">
-          {
-            internships.map((i) => (
-              <li class="flex items-start justify-between gap-3 border-b border-line pb-2 last:border-b-0 last:pb-0">
-                <div>
-                  <p class="text-sm font-medium text-ink">{i.title}</p>
-                  <p class="text-xs text-muted">{i.org}</p>
-                </div>
-                <span class="shrink-0 font-mono text-[0.62rem] uppercase tracking-[0.12em] text-muted">{i.period}</span>
-              </li>
-            ))
-          }
-        </ul>
+        <h4 class="mt-4 font-display text-xl font-bold text-paper">
+          Instruction deepens engineering clarity.
+        </h4>
+        <p class="mt-3 text-sm leading-relaxed text-paper/75">
+          Teaching the Diploma in Information Technology track to 120+ trainees requires breaking down complex computing architectures into clear, actionable mental models. That clarity directly informs how I write modular, self-documenting code.
+        </p>
       </div>
 
-      <div class="rounded-card bg-paper-dim p-6">
-        <div class="mb-4 flex items-center gap-2 text-muted">
-          <Icon name="lucide:book-open" class="h-4 w-4" />
-          <span class="font-mono text-xs uppercase tracking-[0.15em]">Courses</span>
+      <!-- Quick summary stats card -->
+      <div class="rounded-card border border-line bg-paper-card p-6 shadow-sm">
+        <h4 class="font-mono text-xs uppercase tracking-[0.16em] text-muted">Summary</h4>
+        <div class="mt-4 grid grid-cols-2 gap-3 text-center">
+          <div class="rounded-xl border border-line bg-paper p-3">
+            <span class="font-display text-2xl font-bold text-ink">3+ yrs</span>
+            <p class="font-mono text-[0.62rem] text-muted uppercase mt-0.5">Design & Print</p>
+          </div>
+          <div class="rounded-xl border border-line bg-paper p-3">
+            <span class="font-display text-2xl font-bold text-ink">5+</span>
+            <p class="font-mono text-[0.62rem] text-muted uppercase mt-0.5">Internship Programs</p>
+          </div>
         </div>
-        <ul class="space-y-2.5">
-          {
-            courses.map((c) => (
-              <li class="text-sm text-ink/75">
-                <span class="font-medium text-ink">{c.title}</span>
-                <span class="text-muted"> — {c.org}</span>
-              </li>
-            ))
-          }
-        </ul>
       </div>
     </div>
   </div>
+
+  <!-- Tab 2: Internships List -->
+  <div class="exp-panel mt-12 hidden" id="panel-internships-list">
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {internships.map((i) => (
+        <div class="rounded-card border border-line bg-paper-card p-6 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-ink/40">
+          <div class="flex items-center justify-between border-b border-line/60 pb-3">
+            <span class="grid h-8 w-8 place-items-center rounded-full bg-lime text-ink">
+              <Icon name="lucide:rocket" class="h-4 w-4" />
+            </span>
+            <span class="rounded bg-paper px-2 py-0.5 font-mono text-[0.62rem] uppercase tracking-wider text-muted border border-line">
+              {i.period}
+            </span>
+          </div>
+          <h4 class="mt-4 font-display text-base font-bold text-ink leading-snug">
+            {i.title}
+          </h4>
+          <p class="mt-1.5 text-xs text-muted">
+            {i.org}
+          </p>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  <!-- Tab 3: Courses & Certifications List -->
+  <div class="exp-panel mt-12 hidden" id="panel-courses-list">
+    <div class="grid gap-4 sm:grid-cols-2">
+      {courses.map((c) => (
+        <div class="rounded-card border border-line bg-paper-card p-6 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-ink/40">
+          <div class="flex items-center gap-3">
+            <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-paper border border-line text-ink">
+              <Icon name="lucide:award" class="h-4 w-4 text-ink" />
+            </span>
+            <div>
+              <h4 class="font-display text-base font-bold text-ink leading-snug">
+                {c.title}
+              </h4>
+              <p class="mt-0.5 text-xs text-muted">
+                {c.org}
+              </p>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
 </section>
+
+<script>
+  const tabBtns = document.querySelectorAll<HTMLButtonElement>(".exp-tab-btn");
+  const panels = document.querySelectorAll<HTMLElement>(".exp-panel");
+
+  tabBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      tabBtns.forEach((b) => {
+        b.classList.remove("bg-ink", "text-paper", "shadow-sm", "active-exp-tab");
+        b.classList.add("border", "border-ink/20", "bg-paper", "text-ink");
+      });
+      btn.classList.add("bg-ink", "text-paper", "shadow-sm", "active-exp-tab");
+      btn.classList.remove("border", "border-ink/20", "bg-paper", "text-ink");
+
+      const targetId = btn.getAttribute("data-target");
+
+      panels.forEach((p) => {
+        if (p.id === `panel-${targetId}`) {
+          p.classList.remove("hidden");
+        } else {
+          p.classList.add("hidden");
+        }
+      });
+    });
+  });
+</script>

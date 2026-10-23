@@ -2,111 +2,139 @@ const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").match
 const coarsePointer = window.matchMedia("(pointer: coarse)").matches;
 
 if (!reduceMotion) {
-  const initMotion = async () => {
-    const [{ gsap }, { ScrollTrigger }] = await Promise.all([
-      import("gsap"),
-      import("gsap/ScrollTrigger"),
-    ]);
+  // 1. Animated Stat Counters
+  const initCounters = () => {
+    const counterElements = document.querySelectorAll<HTMLElement>(".stat-counter");
+    if (!counterElements.length) return;
 
-    gsap.registerPlugin(ScrollTrigger);
-
-    document.querySelectorAll<HTMLElement>(".story-title").forEach((heading) => {
-      const words = heading.textContent?.trim().split(/\s+/) ?? [];
-      heading.innerHTML = words.map((word) => `<span class="story-word">${word}</span>`).join(" ");
-      gsap.fromTo(heading.querySelectorAll(".story-word"), { y: 18, autoAlpha: 0, filter: "blur(5px)" }, {
-        y: 0,
-        autoAlpha: 1,
-        filter: "blur(0px)",
-        stagger: 0.045,
-        duration: 0.65,
-        ease: "power3.out",
-        scrollTrigger: { trigger: heading, start: "top 86%", once: true },
-      });
-    });
-
-    const intro = document.querySelector<HTMLElement>("[data-intro-veil]");
-    const introWasSeen = sessionStorage.getItem("portfolio-intro-seen");
-    if (intro && !introWasSeen) {
-      sessionStorage.setItem("portfolio-intro-seen", "true");
-      const introTimeline = gsap.timeline({ defaults: { ease: "power4.out" } });
-      document.querySelector("[data-skip-intro]")?.addEventListener("click", () => introTimeline.kill());
-      introTimeline
-        .set(intro, { autoAlpha: 1 })
-        .from(".intro-mark span", { yPercent: 120, rotate: 3, stagger: 0.12, duration: 0.9 }, 0.1)
-        .fromTo(".intro-caption", { y: 12, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.55 }, 0.85)
-        .to(intro, { clipPath: "inset(0 0 100% 0)", duration: 0.9, delay: 0.55, ease: "power3.inOut", onComplete: () => intro.classList.add("is-dismissed") });
-    }
-
-    const heroCopy = document.querySelector<HTMLElement>(".hero-copy");
-    const hero = document.querySelector<HTMLElement>("#top");
-    if (heroCopy && hero) {
-      gsap.to(heroCopy, {
-        y: -90,
-        scale: 0.97,
-        ease: "none",
-        scrollTrigger: { trigger: hero, start: "top top", end: "bottom top", scrub: 0.7 },
-      });
-    }
-
-    document.querySelectorAll<HTMLElement>(".project-card").forEach((card) => {
-      gsap.fromTo(card, { "--scroll-angle": "1.8deg", "--scroll-scale": 0.96 }, {
-        "--scroll-angle": "0deg",
-        "--scroll-scale": 1,
-        ease: "none",
-        scrollTrigger: { trigger: card, start: "top 90%", end: "center 58%", scrub: 0.7 },
-      });
-    });
-
-    const cursorOrb = document.querySelector<HTMLElement>(".cursor-orb");
-    if (!coarsePointer && cursorOrb) {
-      let x = window.innerWidth / 2;
-      let y = window.innerHeight / 2;
-      let targetX = x;
-      let targetY = y;
-      let cursorFrame = 0;
-      const renderCursor = () => {
-        x += (targetX - x) * 0.12;
-        y += (targetY - y) * 0.12;
-        cursorOrb.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-        if (Math.abs(targetX - x) > 0.1 || Math.abs(targetY - y) > 0.1) {
-          cursorFrame = requestAnimationFrame(renderCursor);
-        } else {
-          cursorFrame = 0;
-        }
-      };
-      window.addEventListener("pointermove", (event) => {
-        targetX = event.clientX;
-        targetY = event.clientY;
-        if (!cursorFrame) cursorFrame = requestAnimationFrame(renderCursor);
-      }, { passive: true });
-    }
-
-    if (!coarsePointer) {
-      document.querySelectorAll<HTMLElement>(".project-card, .hero-cta").forEach((element) => {
-        element.addEventListener("pointermove", (event) => {
-          const bounds = element.getBoundingClientRect();
-          const tiltX = ((event.clientY - bounds.top) / bounds.height - 0.5) * -4;
-          const tiltY = ((event.clientX - bounds.left) / bounds.width - 0.5) * 5;
-          element.style.setProperty("--tilt-x", `${tiltX}deg`);
-          element.style.setProperty("--tilt-y", `${tiltY}deg`);
-        }, { passive: true });
-        element.addEventListener("pointerleave", () => {
-          element.style.setProperty("--tilt-x", "0deg");
-          element.style.setProperty("--tilt-y", "0deg");
-        });
-      });
-    }
-
-    const sections = [...document.querySelectorAll<HTMLElement>("main section[id]")];
-    const navLinks = [...document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]')];
-    const sectionObserver = new IntersectionObserver((entries) => {
+    const counterObserver = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (!entry.isIntersecting) return;
-        navLinks.forEach((link) => link.classList.toggle("is-active", link.getAttribute("href") === `#${entry.target.id}`));
+        const el = entry.target as HTMLElement;
+        counterObserver.unobserve(el);
+
+        const targetRaw = el.getAttribute("data-target") ?? el.textContent ?? "0";
+        const hasPlus = targetRaw.includes("+");
+        const hasPercent = targetRaw.includes("%");
+        const isDecimal = targetRaw.includes(".");
+        const targetNum = parseFloat(targetRaw.replace(/[^0-9.]/g, ""));
+
+        if (isNaN(targetNum)) return;
+
+        const duration = 1400; // ms
+        const startTime = performance.now();
+
+        const animate = (currentTime: number) => {
+          const elapsed = currentTime - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          // Ease out cubic: 1 - pow(1 - x, 3)
+          const easeOut = 1 - Math.pow(1 - progress, 3);
+          const current = targetNum * easeOut;
+
+          let display = isDecimal ? current.toFixed(2) : Math.round(current).toString();
+          if (hasPlus) display += "+";
+          if (hasPercent) display += "%";
+
+          el.textContent = display;
+
+          if (progress < 1) {
+            requestAnimationFrame(animate);
+          } else {
+            el.textContent = targetRaw;
+          }
+        };
+
+        requestAnimationFrame(animate);
       });
-    }, { rootMargin: "-35% 0px -55%" });
-    sections.forEach((section) => sectionObserver.observe(section));
+    }, { threshold: 0.3 });
+
+    counterElements.forEach((el) => counterObserver.observe(el));
   };
 
-  void initMotion();
+  // 2. Active Section Spy for Desktop IconRail & Mobile Menu
+  const initActiveSectionSpy = () => {
+    const sections = document.querySelectorAll<HTMLElement>("main section[id]");
+    const navLinks = document.querySelectorAll<HTMLAnchorElement>("[data-target-id]");
+
+    if (!sections.length || !navLinks.length) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        const sectionId = entry.target.id;
+
+        navLinks.forEach((link) => {
+          const target = link.getAttribute("data-target-id");
+          if (target === sectionId) {
+            link.classList.add("is-active-nav");
+          } else {
+            link.classList.remove("is-active-nav");
+          }
+        });
+      });
+    }, { rootMargin: "-25% 0px -55% 0px" });
+
+    sections.forEach((section) => observer.observe(section));
+  };
+
+  // 3. Interactive 3D Card Tilt with Glare Tracking
+  const initCardTilt = () => {
+    if (coarsePointer) return;
+
+    const cards = document.querySelectorAll<HTMLElement>(".project-card, .card-3d");
+
+    cards.forEach((card) => {
+      let isHovered = false;
+      let frame = 0;
+      let targetTiltX = 0;
+      let targetTiltY = 0;
+      let mouseXPercent = 50;
+      let mouseYPercent = 50;
+
+      const onPointerMove = (e: PointerEvent) => {
+        const bounds = card.getBoundingClientRect();
+        const clientX = e.clientX - bounds.left;
+        const clientY = e.clientY - bounds.top;
+
+        mouseXPercent = (clientX / bounds.width) * 100;
+        mouseYPercent = (clientY / bounds.height) * 100;
+
+        // Subtle tilt range (-4deg to +4deg)
+        targetTiltX = ((clientY / bounds.height) - 0.5) * -7;
+        targetTiltY = ((clientX / bounds.width) - 0.5) * 7;
+
+        if (!frame) {
+          frame = requestAnimationFrame(() => {
+            card.style.setProperty("--tilt-x", `${targetTiltX.toFixed(2)}deg`);
+            card.style.setProperty("--tilt-y", `${targetTiltY.toFixed(2)}deg`);
+            card.style.setProperty("--mouse-x", `${mouseXPercent.toFixed(1)}%`);
+            card.style.setProperty("--mouse-y", `${mouseYPercent.toFixed(1)}%`);
+            frame = 0;
+          });
+        }
+      };
+
+      const onPointerLeave = () => {
+        isHovered = false;
+        card.style.setProperty("--tilt-x", "0deg");
+        card.style.setProperty("--tilt-y", "0deg");
+      };
+
+      card.addEventListener("pointermove", onPointerMove, { passive: true });
+      card.addEventListener("pointerleave", onPointerLeave);
+    });
+  };
+
+  // Initialize all features once DOM is ready
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => {
+      initCounters();
+      initActiveSectionSpy();
+      initCardTilt();
+    });
+  } else {
+    initCounters();
+    initActiveSectionSpy();
+    initCardTilt();
+  }
 }

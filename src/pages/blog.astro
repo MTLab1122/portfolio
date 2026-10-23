@@ -1,116 +1,289 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import { blogPosts, person } from "../data/profile";
+import { blogPosts, blogCategories, person } from "../data/profile";
+import { Icon } from "astro-icon/components";
 
-const pageTitle = `Blog — ${person.name}`;
-const pageDescription = `Read practical insights on web development, SEO, design, and digital growth from ${person.name}.`;
-const posts = blogPosts;
-const featuredPost = posts.find((post) => post.featured) ?? posts[0];
-const regularPosts = posts.filter((post) => post.slug !== featuredPost.slug);
-const baseUrl = import.meta.env.BASE_URL.endsWith("/") ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
+const pageTitle = `Blog & Technical Insights — ${person.name}`;
+const pageDescription = `Practical engineering insights, frontend architecture, technical SEO, and modern web design lessons from ${person.name}.`;
+
+const featuredPost = blogPosts.find((post) => post.featured) ?? blogPosts[0];
+const regularPosts = blogPosts.filter((post) => post.slug !== featuredPost.slug);
+
+const rawBaseUrl = import.meta.env.BASE_URL ?? "/";
+const baseUrl = rawBaseUrl.endsWith("/") ? rawBaseUrl : `${rawBaseUrl}/`;
 ---
 
 <Layout title={pageTitle} description={pageDescription}>
-  <div class="min-h-screen bg-sage px-4 py-5 sm:px-6 lg:px-8">
-    <div class="mx-auto max-w-6xl rounded-[2rem] border border-ink/10 bg-paper shadow-[0_30px_80px_rgba(20,21,15,0.08)] overflow-hidden">
-      <header class="border-b border-line bg-paper px-5 py-5 sm:px-8 lg:px-10">
+  <div class="min-h-screen bg-sage/40 px-3 py-4 sm:px-6 sm:py-8 lg:px-8">
+    <div class="mx-auto max-w-6xl overflow-hidden rounded-[2.25rem] border border-ink/10 bg-paper shadow-[0_30px_90px_rgba(20,21,15,0.08)]">
+      
+      <!-- Header & Breadcrumbs -->
+      <header class="border-b border-line bg-paper-card px-6 py-5 sm:px-10">
         <nav class="flex items-center justify-between gap-3 text-sm text-ink/70" aria-label="Breadcrumb">
-          <a href={baseUrl} class="font-medium text-ink hover:text-ink/80">Home</a>
-          <span aria-hidden="true">/</span>
-          <span class="font-semibold text-ink">Blog</span>
+          <div class="flex items-center gap-2">
+            <a href={baseUrl} class="font-medium text-ink hover:text-ink/80 transition-colors">Home</a>
+            <span class="text-muted" aria-hidden="true">/</span>
+            <span class="font-bold text-ink">Blog</span>
+          </div>
+
+          <a
+            href={`${baseUrl}#contact`}
+            class="inline-flex items-center gap-1.5 rounded-pill bg-ink px-4 py-1.5 text-xs font-semibold text-paper hover:bg-ink-soft transition-colors"
+          >
+            <span>Get in touch</span>
+          </a>
         </nav>
       </header>
 
-      <main class="px-5 py-8 sm:px-8 lg:px-10 lg:py-12">
-        <section class="mb-10">
-          <p class="font-mono text-[0.7rem] uppercase tracking-[0.2em] text-muted">Insights</p>
-          <h1 class="mt-3 max-w-3xl font-display text-4xl font-bold tracking-tight text-ink sm:text-5xl lg:text-6xl">
-            Practical ideas for better web products, SEO, and growth.
+      <main class="px-6 py-10 sm:px-10 sm:py-16">
+        <!-- Top Editorial Hero -->
+        <section class="max-w-3xl">
+          <p class="font-mono text-xs uppercase tracking-[0.2em] text-muted">Writing & Lessons</p>
+          <h1 class="mt-3 font-display text-4xl font-bold tracking-tight text-ink sm:text-5xl lg:text-6xl">
+            Practical ideas for modern web engineering.
           </h1>
-          <p class="mt-5 max-w-2xl text-base leading-relaxed text-ink/75">
-            I write about the systems, design decisions, and optimization strategies that help websites feel premium, perform fast, and convert better.
+          <p class="mt-4 text-base leading-relaxed text-ink/75 sm:text-lg">
+            Thoughts, technical guides, and architectural notes on building fast websites with Astro, Next.js, and TypeScript that look stunning and convert.
           </p>
         </section>
 
-        <section class="mb-10 grid gap-6 lg:grid-cols-[1.3fr_0.7fr]">
-          <article class="group overflow-hidden rounded-card border border-line bg-paper-dim shadow-sm transition-transform duration-300 hover:-translate-y-1">
-            <a href={`${baseUrl}blog/${featuredPost.slug}`} class="block">
+        <!-- Search & Category Filters -->
+        <div class="mt-10 flex flex-wrap items-center justify-between gap-4 border-b border-line pb-6">
+          <!-- Category Chips -->
+          <div class="flex flex-wrap gap-2" id="blog-category-filters">
+            {blogCategories.map((cat, idx) => (
+              <button
+                type="button"
+                data-category={cat}
+                class={`blog-filter-btn rounded-pill px-4 py-2 text-xs font-semibold transition-all duration-200 ${
+                  idx === 0
+                    ? "bg-ink text-paper shadow-sm active-blog-filter"
+                    : "border border-ink/20 bg-paper text-ink hover:border-ink hover:bg-white"
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+
+          <!-- Live Search Input -->
+          <div class="relative w-full max-w-xs">
+            <Icon name="lucide:search" class="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted pointer-events-none" />
+            <input
+              type="search"
+              id="blog-search-input"
+              placeholder="Search posts..."
+              class="w-full rounded-pill border border-line bg-paper-card py-2 pl-9 pr-4 text-xs font-medium text-ink placeholder:text-muted focus:border-ink focus:bg-white focus:outline-none"
+              aria-label="Search blog posts"
+            />
+          </div>
+        </div>
+
+        <!-- Featured Post Spotlight -->
+        <section class="mt-10 grid gap-6 lg:grid-cols-[1.25fr_0.75fr]" id="featured-article-section">
+          <article class="blog-card group overflow-hidden rounded-card border border-line bg-paper-card shadow-sm transition-all duration-300 hover:shadow-md" data-category={featuredPost.category} data-title={featuredPost.title.toLowerCase()} data-excerpt={featuredPost.excerpt.toLowerCase()}>
+            <a href={`${baseUrl}blog/${featuredPost.slug}`} class="block overflow-hidden">
               <img
                 src={`${baseUrl}${featuredPost.image.replace(/^\/+/, "")}`}
                 alt={featuredPost.title}
-                class="h-64 w-full object-cover sm:h-72"
+                class="h-64 w-full object-cover sm:h-72 transition-transform duration-500 group-hover:scale-102"
                 loading="eager"
               />
             </a>
-            <div class="p-6 sm:p-7">
-              <div class="flex flex-wrap items-center gap-2 text-xs font-mono uppercase tracking-[0.16em] text-muted">
-                <span>{featuredPost.category}</span>
+            <div class="p-6 sm:p-8">
+              <div class="flex flex-wrap items-center gap-2 font-mono text-xs uppercase tracking-[0.16em] text-muted">
+                <span class="rounded bg-lime px-2 py-0.5 font-bold text-ink">{featuredPost.category}</span>
                 <span>•</span>
-                <time datetime={featuredPost.date}>{new Date(featuredPost.date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</time>
+                <time datetime={featuredPost.date}>
+                  {new Date(featuredPost.date).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
+                </time>
+                <span>•</span>
+                <span>{featuredPost.readTime}</span>
               </div>
+
               <h2 class="mt-4 font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl">
-                <a href={`${baseUrl}blog/${featuredPost.slug}`} class="hover:text-ink/75">{featuredPost.title}</a>
+                <a href={`${baseUrl}blog/${featuredPost.slug}`} class="transition-colors hover:text-ink/75">
+                  {featuredPost.title}
+                </a>
               </h2>
-              <p class="mt-3 text-base leading-relaxed text-ink/70">{featuredPost.excerpt}</p>
-              <div class="mt-5 flex items-center justify-between gap-4">
-                <div>
-                  <p class="text-sm font-semibold text-ink">{featuredPost.author}</p>
-                  <p class="text-xs text-muted">{featuredPost.readTime}</p>
-                </div>
-                <a href={`${baseUrl}blog/${featuredPost.slug}`} class="inline-flex items-center gap-2 rounded-pill bg-ink px-4 py-2 text-sm font-semibold text-paper transition-colors hover:bg-ink-soft">
-                  Read article
+
+              <p class="mt-3 text-sm leading-relaxed text-ink/75 sm:text-base">
+                {featuredPost.excerpt}
+              </p>
+
+              <div class="mt-6 flex items-center justify-between gap-4 border-t border-line/60 pt-4">
+                <span class="text-xs font-semibold text-ink">By {featuredPost.author}</span>
+                <a
+                  href={`${baseUrl}blog/${featuredPost.slug}`}
+                  class="inline-flex items-center gap-1.5 rounded-pill bg-ink px-4 py-2 text-xs font-semibold text-paper transition-all hover:bg-ink-soft"
+                >
+                  <span>Read article</span>
+                  <Icon name="lucide:arrow-right" class="h-3 w-3" />
                 </a>
               </div>
             </div>
           </article>
 
-          <aside class="rounded-card border border-line bg-ink p-6 text-paper">
-            <p class="font-mono text-[0.7rem] uppercase tracking-[0.2em] text-lime">Why read</p>
-            <ul class="mt-5 space-y-4 text-sm leading-relaxed text-paper/75">
-              <li>• Actionable advice for founders and developers.</li>
-              <li>• Clear explanations of SEO, performance, and design trade-offs.</li>
-              <li>• Opinionated but practical guidance built around real web work.</li>
-            </ul>
-            <div class="mt-8 rounded-card bg-paper-dim p-4 text-ink">
-              <p class="font-mono text-[0.7rem] uppercase tracking-[0.2em] text-muted">Looking for work?</p>
-              <p class="mt-2 text-base font-semibold">Build a premium website that converts.</p>
-              <a href={`${baseUrl}#contact`} class="mt-4 inline-flex rounded-pill bg-ink px-4 py-2 text-sm font-semibold text-paper hover:bg-ink-soft">Book a project</a>
+          <!-- Why read & Newsletter card -->
+          <aside class="flex flex-col justify-between rounded-card border border-line bg-ink p-7 text-paper shadow-md">
+            <div>
+              <p class="font-mono text-xs uppercase tracking-[0.2em] text-lime">Core Editorial Focus</p>
+              <h3 class="mt-3 font-display text-2xl font-bold text-paper">
+                No fluff. Real web systems.
+              </h3>
+              <ul class="mt-5 space-y-3.5 text-sm leading-relaxed text-paper/75">
+                <li class="flex items-start gap-2">
+                  <span class="text-lime font-bold">✓</span>
+                  <span>Astro vs Next.js real-world performance benchmarks.</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-lime font-bold">✓</span>
+                  <span>Technical SEO checklists that compound organic impressions.</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-lime font-bold">✓</span>
+                  <span>Design systems, micro-interactions, and conversion design.</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="mt-8 rounded-2xl bg-white/10 p-5 border border-white/10">
+              <p class="font-display text-base font-bold text-paper">Want to discuss an idea?</p>
+              <p class="mt-1 text-xs text-paper/70 leading-relaxed">
+                Connect directly for collaboration, frontend advice, or speaking.
+              </p>
+              <a
+                href={`${baseUrl}#contact`}
+                class="mt-4 inline-flex items-center gap-2 rounded-pill bg-lime px-4 py-2 text-xs font-bold text-ink hover:bg-paper transition-colors"
+              >
+                <span>Drop a note</span>
+                <Icon name="lucide:arrow-right" class="h-3 w-3" />
+              </a>
             </div>
           </aside>
         </section>
 
-        <section aria-label="Blog listing" class="space-y-6">
-          {regularPosts.map((post) => (
-            <article class="group flex flex-col gap-5 rounded-card border border-line bg-paper-dim p-5 transition-shadow duration-300 hover:shadow-[0_18px_40px_rgba(20,21,15,0.08)] sm:p-6 md:flex-row md:items-center">
-              <a href={`${baseUrl}blog/${post.slug}`} class="block md:w-56">
-                <img src={`${baseUrl}${post.image.replace(/^\/+/, "")}`} alt={post.title} class="h-40 w-full rounded-[1.1rem] object-cover md:h-32 md:w-56" loading="lazy" />
-              </a>
-              <div class="flex-1">
-                <div class="flex flex-wrap items-center gap-2 text-[0.68rem] font-mono uppercase tracking-[0.18em] text-muted">
-                  <span>{post.category}</span>
-                  <span>•</span>
-                  <time datetime={post.date}>{new Date(post.date).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}</time>
+        <!-- Regular Articles Grid -->
+        <section aria-label="Articles listing" class="mt-12 space-y-5" id="regular-articles-container">
+          {
+            regularPosts.map((post) => (
+              <article
+                class="blog-card group flex flex-col gap-6 rounded-card border border-line bg-paper-card p-6 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-ink/40 hover:shadow-md md:flex-row md:items-center"
+                data-category={post.category}
+                data-title={post.title.toLowerCase()}
+                data-excerpt={post.excerpt.toLowerCase()}
+              >
+                <a href={`${baseUrl}blog/${post.slug}`} class="block overflow-hidden rounded-xl md:w-56 shrink-0 bg-ink/5">
+                  <img
+                    src={`${baseUrl}${post.image.replace(/^\/+/, "")}`}
+                    alt={post.title}
+                    class="h-44 w-full object-cover md:h-36 md:w-56 transition-transform duration-500 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                </a>
+
+                <div class="flex-1">
+                  <div class="flex flex-wrap items-center gap-2 font-mono text-[0.68rem] uppercase tracking-[0.16em] text-muted">
+                    <span class="font-semibold text-ink">{post.category}</span>
+                    <span>•</span>
+                    <time datetime={post.date}>
+                      {new Date(post.date).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
+                    </time>
+                    <span>•</span>
+                    <span>{post.readTime}</span>
+                  </div>
+
+                  <h2 class="mt-2.5 font-display text-xl font-bold tracking-tight text-ink sm:text-2xl">
+                    <a href={`${baseUrl}blog/${post.slug}`} class="transition-colors hover:text-ink/75">
+                      {post.title}
+                    </a>
+                  </h2>
+
+                  <p class="mt-2 text-sm leading-relaxed text-ink/70 max-w-2xl">
+                    {post.excerpt}
+                  </p>
+
+                  <div class="mt-4 flex flex-wrap gap-1.5">
+                    {post.tags.map((tag) => (
+                      <span class="rounded-pill border border-line bg-paper px-2.5 py-0.5 text-[0.62rem] font-mono uppercase tracking-wider text-muted">
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-                <h2 class="mt-3 font-display text-2xl font-bold tracking-tight text-ink">
-                  <a href={`${baseUrl}blog/${post.slug}`} class="hover:text-ink/75">{post.title}</a>
-                </h2>
-                <p class="mt-2 max-w-2xl text-sm leading-relaxed text-ink/70">{post.excerpt}</p>
-                <div class="mt-4 flex flex-wrap items-center gap-2">
-                  {post.tags.map((tag) => (
-                    <span class="rounded-pill border border-line bg-paper px-2.5 py-1 text-[0.62rem] font-mono uppercase tracking-[0.14em] text-muted">
-                      {tag}
-                    </span>
-                  ))}
+
+                <div class="md:text-right shrink-0">
+                  <a
+                    href={`${baseUrl}blog/${post.slug}`}
+                    class="inline-flex items-center gap-1 rounded-pill bg-ink px-4 py-2 text-xs font-semibold text-paper hover:bg-ink-soft transition-colors"
+                  >
+                    <span>Read</span>
+                    <Icon name="lucide:arrow-right" class="h-3 w-3" />
+                  </a>
                 </div>
-              </div>
-              <div class="md:text-right">
-                <p class="text-sm font-medium text-ink">{post.author}</p>
-                <p class="text-xs text-muted">{post.readTime}</p>
-              </div>
-            </article>
-          ))}
+              </article>
+            ))
+          }
         </section>
+
+        <p id="no-articles-found" class="mt-12 text-center font-mono text-sm text-muted" style="display: none;">
+          No articles match the current filter or search criteria.
+        </p>
       </main>
     </div>
   </div>
 </Layout>
+
+<script>
+  const filterButtons = document.querySelectorAll<HTMLButtonElement>(".blog-filter-btn");
+  const blogCards = document.querySelectorAll<HTMLElement>(".blog-card");
+  const searchInput = document.getElementById("blog-search-input") as HTMLInputElement | null;
+  const noArticlesMsg = document.getElementById("no-articles-found");
+  const featuredSection = document.getElementById("featured-article-section");
+
+  let activeCategory = "All";
+  let searchQuery = "";
+
+  const updateBlogVisibility = () => {
+    let visibleCount = 0;
+
+    blogCards.forEach((card) => {
+      const category = card.getAttribute("data-category") ?? "";
+      const title = card.getAttribute("data-title") ?? "";
+      const excerpt = card.getAttribute("data-excerpt") ?? "";
+
+      const matchesCat = activeCategory === "All" || category === activeCategory;
+      const matchesSearch = !searchQuery || title.includes(searchQuery) || excerpt.includes(searchQuery);
+
+      if (matchesCat && matchesSearch) {
+        card.style.display = "";
+        visibleCount++;
+      } else {
+        card.style.display = "none";
+      }
+    });
+
+    if (noArticlesMsg) {
+      noArticlesMsg.style.display = visibleCount === 0 ? "block" : "none";
+    }
+  };
+
+  filterButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      filterButtons.forEach((b) => {
+        b.classList.remove("bg-ink", "text-paper", "shadow-sm", "active-blog-filter");
+        b.classList.add("border", "border-ink/20", "bg-paper", "text-ink");
+      });
+      btn.classList.add("bg-ink", "text-paper", "shadow-sm", "active-blog-filter");
+      btn.classList.remove("border", "border-ink/20", "bg-paper", "text-ink");
+
+      activeCategory = btn.getAttribute("data-category") ?? "All";
+      updateBlogVisibility();
+    });
+  });
+
+  searchInput?.addEventListener("input", (e) => {
+    searchQuery = (e.target as HTMLInputElement).value.trim().toLowerCase();
+    updateBlogVisibility();
+  });
+</script>

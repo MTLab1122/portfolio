@@ -1,35 +1,44 @@
 import type { APIRoute } from "astro";
-import { projects } from "../data/profile";
+import { blogPosts, person, projects } from "../data/profile";
 
 export const GET: APIRoute = ({ site }) => {
-  const base = `${(site ?? "https://mtlab1122.github.io/portfolio/").toString().replace(/\/+$/, "")}/`;
-  const urls = [
-    ".",
-    "blog",
-    "blog/astro-vs-nextjs-for-small-business-websites",
-    "blog/building-trust-through-premium-web-design",
-    "blog/seo-checklist-for-developers-and-founders",
-    "blog/how-to-turn-a-portfolio-into-client-leads",
-    ...projects.map((project) => `projects/${project.slug}`),
+  const defaultSite = person.productionUrl;
+  const rawBase = site ? site.toString() : defaultSite;
+  const base = `${rawBase.replace(/\/+$/, "")}/`;
+
+  const urls: { path: string; priority: string; changefreq: string }[] = [
+    { path: "", priority: "1.0", changefreq: "weekly" },
+    { path: "blog", priority: "0.8", changefreq: "weekly" },
+    ...blogPosts.map((post) => ({
+      path: `blog/${post.slug}`,
+      priority: "0.7",
+      changefreq: "monthly",
+    })),
+    ...projects.map((project) => ({
+      path: `projects/${project.slug}`,
+      priority: project.featured ? "0.9" : "0.8",
+      changefreq: "monthly",
+    })),
   ];
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   ${urls
     .map(
-      (path) => `
+      ({ path, priority, changefreq }) => `
   <url>
     <loc>${new URL(path, base).toString()}</loc>
-    <changefreq>weekly</changefreq>
-    <priority>${path === "." ? "1.0" : "0.8"}</priority>
+    <changefreq>${changefreq}</changefreq>
+    <priority>${priority}</priority>
   </url>`,
     )
     .join("")}
 </urlset>`;
 
-  return new Response(xml, {
+  return new Response(xml.trim(), {
     headers: {
       "Content-Type": "application/xml; charset=utf-8",
+      "Cache-Control": "public, max-age=3600",
     },
   });
 };

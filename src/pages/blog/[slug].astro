@@ -1,102 +1,280 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import { blogPosts, person } from "../../data/profile";
+import { blogPosts, person, type BlogPost } from "../../data/profile";
+import { Icon } from "astro-icon/components";
 
 export async function getStaticPaths() {
   return blogPosts.map((post) => ({ params: { slug: post.slug }, props: { post } }));
 }
 
+interface Props {
+  post: BlogPost;
+}
+
 const { post } = Astro.props;
 const relatedPosts = blogPosts.filter((item) => item.slug !== post.slug).slice(0, 3);
-const baseUrl = import.meta.env.BASE_URL.endsWith("/") ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
+const rawBaseUrl = import.meta.env.BASE_URL ?? "/";
+const baseUrl = rawBaseUrl.endsWith("/") ? rawBaseUrl : `${rawBaseUrl}/`;
+const effectiveSite = (Astro.site?.toString() ?? person.productionUrl).replace(/\/+$/, "");
+
 const pageTitle = `${post.title} — ${person.name}`;
 const pageDescription = post.description;
+
 const articleSchema = {
   "@context": "https://schema.org",
   "@type": "Article",
   headline: post.title,
   description: post.description,
   datePublished: post.date,
-  author: { "@type": "Person", name: person.name },
+  author: { "@type": "Person", name: person.name, url: effectiveSite },
   keywords: post.keywords.join(", "),
-  url: Astro.url.href,
+  url: new URL(`blog/${post.slug}`, `${effectiveSite}/`).toString(),
+};
+
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "Home",
+      item: `${effectiveSite}/`,
+    },
+    {
+      "@type": "ListItem",
+      position: 2,
+      name: "Blog",
+      item: `${effectiveSite}/blog`,
+    },
+    {
+      "@type": "ListItem",
+      position: 3,
+      name: post.title,
+      item: new URL(`blog/${post.slug}`, `${effectiveSite}/`).toString(),
+    },
+  ],
 };
 ---
 
 <Layout title={pageTitle} description={pageDescription} structuredData={articleSchema}>
-  <div class="min-h-screen bg-sage px-4 py-5 sm:px-6 lg:px-8">
-    <div class="mx-auto max-w-5xl rounded-[2rem] border border-ink/10 bg-paper shadow-[0_30px_80px_rgba(20,21,15,0.08)] overflow-hidden">
-      <header class="border-b border-line px-5 py-5 sm:px-8 lg:px-10">
-        <nav class="flex flex-wrap items-center gap-2 text-sm text-ink/70" aria-label="Breadcrumb">
-          <a href={baseUrl} class="font-medium text-ink hover:text-ink/80">Home</a>
-          <span aria-hidden="true">/</span>
-          <a href={`${baseUrl}blog`} class="font-medium text-ink hover:text-ink/80">Blog</a>
-          <span aria-hidden="true">/</span>
-          <span class="font-semibold text-ink">{post.title}</span>
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+  <div class="min-h-screen bg-sage/40 px-3 py-4 sm:px-6 sm:py-8 lg:px-8">
+    <div class="mx-auto max-w-4xl overflow-hidden rounded-[2.25rem] border border-ink/10 bg-paper shadow-[0_30px_90px_rgba(20,21,15,0.08)]">
+      
+      <!-- Top Breadcrumb Header -->
+      <header class="border-b border-line bg-paper-card px-6 py-5 sm:px-10">
+        <nav class="flex flex-wrap items-center justify-between gap-3 text-sm text-ink/70" aria-label="Breadcrumb">
+          <div class="flex items-center gap-2">
+            <a href={baseUrl} class="font-medium text-ink hover:text-ink/80 transition-colors">Home</a>
+            <span class="text-muted" aria-hidden="true">/</span>
+            <a href={`${baseUrl}blog`} class="font-medium text-ink hover:text-ink/80 transition-colors">Blog</a>
+            <span class="text-muted" aria-hidden="true">/</span>
+            <span class="font-bold text-ink truncate max-w-[200px] sm:max-w-none">{post.title}</span>
+          </div>
+
+          <a
+            href={`${baseUrl}blog`}
+            class="inline-flex items-center gap-1.5 rounded-pill border border-line bg-paper px-3 py-1.5 text-xs font-semibold text-ink hover:border-ink transition-colors"
+          >
+            <Icon name="lucide:arrow-left" class="h-3.5 w-3.5" />
+            <span>All articles</span>
+          </a>
         </nav>
       </header>
 
-      <main class="px-5 py-8 sm:px-8 lg:px-10 lg:py-12">
-        <article>
-          <header class="mx-auto max-w-3xl">
-            <p class="font-mono text-[0.7rem] uppercase tracking-[0.2em] text-muted">{post.category}</p>
-            <h1 class="mt-3 font-display text-4xl font-bold tracking-tight text-ink sm:text-5xl">{post.title}</h1>
-            <div class="mt-4 flex flex-wrap items-center gap-3 text-sm text-ink/70">
-              <span>{post.author}</span>
-              <span aria-hidden="true">•</span>
-              <time datetime={post.date}>{new Date(post.date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</time>
-              <span aria-hidden="true">•</span>
+      <main class="px-6 py-10 sm:px-10 sm:py-16">
+        <article class="mx-auto max-w-3xl">
+          <!-- Article Header -->
+          <header>
+            <div class="flex flex-wrap items-center gap-2 font-mono text-xs uppercase tracking-[0.16em] text-muted">
+              <span class="rounded bg-lime px-2.5 py-1 font-bold text-ink">{post.category}</span>
+              <span>•</span>
+              <time datetime={post.date}>
+                {new Date(post.date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+              </time>
+              <span>•</span>
               <span>{post.readTime}</span>
+            </div>
+
+            <h1 class="mt-4 font-display text-3xl font-bold tracking-tight text-ink sm:text-5xl sm:leading-[1.1]">
+              {post.title}
+            </h1>
+
+            <p class="mt-4 text-base font-display text-ink/75 sm:text-xl leading-relaxed">
+              {post.excerpt}
+            </p>
+
+            <!-- Author & Social Share Bar -->
+            <div class="mt-8 flex flex-wrap items-center justify-between gap-4 border-y border-line py-4">
+              <div class="flex items-center gap-3">
+                <img
+                  src={person.photo}
+                  alt={person.photoAlt}
+                  class="h-10 w-10 rounded-full object-cover border border-ink/20"
+                />
+                <div>
+                  <p class="text-sm font-bold text-ink leading-tight">{post.author}</p>
+                  <p class="font-mono text-[0.65rem] text-muted">{person.role}</p>
+                </div>
+              </div>
+
+              <!-- Share Buttons -->
+              <div class="flex items-center gap-2" id="share-buttons">
+                <button
+                  type="button"
+                  id="share-copy-link"
+                  class="inline-flex items-center gap-1.5 rounded-pill border border-line bg-paper-card px-3 py-1.5 text-xs font-semibold text-ink hover:border-ink transition-colors"
+                  aria-label="Copy article link"
+                >
+                  <Icon name="lucide:share-2" class="h-3.5 w-3.5" />
+                  <span id="share-copy-text">Share</span>
+                </button>
+
+                <a
+                  href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(Astro.url.href)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="grid place-items-center h-8 w-8 rounded-full border border-line bg-paper-card text-ink hover:border-ink transition-colors"
+                  aria-label="Share on X / Twitter"
+                >
+                  <Icon name="lucide:twitter" class="h-3.5 w-3.5" />
+                </a>
+
+                <a
+                  href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(Astro.url.href)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="grid place-items-center h-8 w-8 rounded-full border border-line bg-paper-card text-ink hover:border-ink transition-colors"
+                  aria-label="Share on LinkedIn"
+                >
+                  <Icon name="lucide:linkedin" class="h-3.5 w-3.5" />
+                </a>
+              </div>
             </div>
           </header>
 
-          <img src={`${baseUrl}${post.image.replace(/^\/+/, "")}`} alt={post.title} class="mt-8 h-72 w-full rounded-[1.5rem] object-cover sm:h-96" loading="eager" />
-
-          <div class="mx-auto mt-8 max-w-3xl prose prose-lg prose-headings:font-display prose-p:text-ink/75 prose-a:text-ink prose-strong:text-ink prose-li:text-ink/75">
-            <p>
-              A premium website is not just a digital brochure; it is a trust-building system. In practice, the best-performing pages combine clean UX, thoughtful positioning, and a technical foundation that supports speed, accessibility, and organic reach.
-            </p>
-            <p>
-              When we talk about performance, we are really talking about user confidence. Fast pages feel reliable. Clear hierarchy makes decisions easier. Good structure makes search engines understand intent better. The result is a site that looks polished and behaves like a serious business asset.
-            </p>
-            <h2>Start with the business goal</h2>
-            <p>
-              Before writing copy or choosing a color palette, clarify what the visitor needs to understand and do. For a portfolio, that often means proving capability, showing relevant proof, and making contact simple. For a service business, it usually involves trust-building and conversion clarity.
-            </p>
-            <h2>Design for clarity, not decoration</h2>
-            <p>
-              Strong design is rarely noisy. It is deliberate. Better spacing, better type scale, and a cleaner visual rhythm can instantly increase perceived quality and make users more likely to trust the message.
-            </p>
-            <h2>Technical quality creates long-term leverage</h2>
-            <p>
-              A site that is accessible, fast, and SEO-aware compounds over time. Semantic markup, clean metadata, internal linking, and good image handling matter much more than decorative effects that slow the experience down.
-            </p>
-            <p>
-              The right balance is simple: build something visually elevated, technically solid, and easy to maintain. That is what turns a website from a one-time project into an asset.
-            </p>
+          <!-- Featured Banner Image -->
+          <div class="mt-8 overflow-hidden rounded-2xl border border-line bg-ink/5 shadow-sm">
+            <img
+              src={`${baseUrl}${post.image.replace(/^\/+/, "")}`}
+              alt={post.title}
+              class="h-64 w-full object-cover sm:h-96"
+              loading="eager"
+            />
           </div>
 
-          <div class="mx-auto mt-8 max-w-3xl">
-            <div class="flex flex-wrap gap-2">
-              {post.tags.map((tag) => (
-                <span class="rounded-pill bg-paper-dim px-3 py-1.5 text-[0.66rem] font-mono uppercase tracking-[0.14em] text-muted">#{tag}</span>
-              ))}
+          <!-- Article Body Content -->
+          <div class="mt-10 space-y-6 text-base leading-relaxed text-ink/85 sm:text-lg">
+            <p>
+              A premium website is not merely a digital business card; it is a credibility and trust-building engine. In real-world software engineering, the best digital experiences marry thoughtful UX hierarchy, crisp aesthetic tokens, and a resilient technical foundation designed for sub-second page performance, accessibility, and search ranking compounding.
+            </p>
+
+            <p>
+              When web developers discuss performance, the underlying subject is user confidence. Fast pages signal reliability and respect for the user's attention. Clear layout hierarchy speeds decision-making. Structured semantic markup ensures search bots index your core offerings with precision.
+            </p>
+
+            <h2 class="mt-10 font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl">
+              1. Start with the visitor's core objective
+            </h2>
+            <p>
+              Before picking color palettes or layout frameworks, pinpoint exactly what the visitor needs to comprehend within the first 5 seconds. For a portfolio, that means demonstrating verifiable capability, presenting tangible results, and establishing frictionless contact. For client service platforms, it means eliminating ambiguity and removing friction from the conversion journey.
+            </p>
+
+            <h2 class="mt-10 font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl">
+              2. Design for clarity, not decorative noise
+            </h2>
+            <p>
+              Elevated web design is characterized by intentional restraint rather than visual cacophony. Balanced whitespace, consistent typography scaling, and subtle micro-interactions elevate perceived craft far more than bloated third-party animation libraries or unnecessary layout effects that slow down mobile rendering.
+            </p>
+
+            <h2 class="mt-10 font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl">
+              3. Technical quality creates organic leverage
+            </h2>
+            <p>
+              A site that passes Core Web Vitals with flying colors, adheres to WCAG accessibility guidelines, and implements JSON-LD Schema markup compounds organic search traffic over time. Clean TypeScript interfaces, edge deployment, and self-hosted fonts form the backbone of a sustainable digital property.
+            </p>
+
+            <div class="my-8 rounded-2xl border-l-4 border-lime bg-paper-card p-5 sm:p-6 shadow-sm">
+              <p class="font-display font-bold text-ink">Key Takeaway:</p>
+              <p class="mt-1 text-sm text-ink/80 leading-relaxed">
+                The winning strategy is straightforward: build something visually elevated, technically robust, and easy to evolve. That is what transforms a simple site into a compounding business asset.
+              </p>
             </div>
           </div>
-        </article>
 
-        <aside class="mx-auto mt-12 max-w-3xl rounded-card border border-line bg-paper-dim p-6">
-          <p class="font-mono text-[0.7rem] uppercase tracking-[0.2em] text-muted">Related posts</p>
-          <div class="mt-5 grid gap-4 md:grid-cols-3">
-            {relatedPosts.map((related) => (
-              <a href={`${baseUrl}blog/${related.slug}`} class="rounded-card border border-line bg-paper p-4 transition-transform duration-200 hover:-translate-y-1">
-                <p class="font-mono text-[0.64rem] uppercase tracking-[0.15em] text-muted">{related.category}</p>
-                <h3 class="mt-2 font-display text-lg font-semibold text-ink">{related.title}</h3>
-              </a>
+          <!-- Tags Footer -->
+          <div class="mt-10 flex flex-wrap gap-2 border-t border-line pt-6">
+            {post.tags.map((tag) => (
+              <span class="rounded-pill border border-line bg-paper-card px-3.5 py-1 text-xs font-mono uppercase tracking-wider text-muted">
+                #{tag}
+              </span>
             ))}
           </div>
-        </aside>
+
+          <!-- Author Bio Box -->
+          <div class="mt-12 flex flex-col gap-5 rounded-2xl border border-line bg-paper-card p-6 sm:p-8 sm:flex-row sm:items-center">
+            <img
+              src={person.photo}
+              alt={person.photoAlt}
+              class="h-16 w-16 rounded-full object-cover border-2 border-lime shadow-sm shrink-0"
+            />
+            <div class="flex-1">
+              <p class="font-mono text-xs uppercase tracking-wider text-muted">Written by</p>
+              <h3 class="font-display text-xl font-bold text-ink">{person.name}</h3>
+              <p class="mt-1 text-sm text-ink/75 leading-relaxed">
+                Software engineer and web developer building fast, SEO-ready web products with Astro, Next.js, and TypeScript.
+              </p>
+            </div>
+            <a
+              href={`${baseUrl}#contact`}
+              class="inline-flex items-center gap-1.5 rounded-pill bg-ink px-4 py-2 text-xs font-bold text-paper hover:bg-ink-soft transition-colors shrink-0"
+            >
+              <span>Get in touch</span>
+              <Icon name="lucide:arrow-right" class="h-3 w-3" />
+            </a>
+          </div>
+
+          <!-- Related Posts -->
+          <aside class="mt-14 border-t border-line pt-10">
+            <h3 class="font-mono text-xs uppercase tracking-[0.2em] text-muted">Related Articles</h3>
+            <div class="mt-6 grid gap-4 sm:grid-cols-3">
+              {relatedPosts.map((related) => (
+                <a
+                  href={`${baseUrl}blog/${related.slug}`}
+                  class="group rounded-2xl border border-line bg-paper-card p-5 transition-all hover:-translate-y-1 hover:border-ink/40 hover:shadow-sm"
+                >
+                  <p class="font-mono text-[0.62rem] uppercase tracking-wider text-muted">{related.category}</p>
+                  <h4 class="mt-2 font-display text-base font-bold text-ink leading-snug group-hover:text-ink/80">
+                    {related.title}
+                  </h4>
+                  <p class="mt-2 font-mono text-[0.62rem] text-muted">{related.readTime}</p>
+                </a>
+              ))}
+            </div>
+          </aside>
+        </article>
       </main>
     </div>
   </div>
 </Layout>
+
+<script>
+  const shareBtn = document.getElementById("share-copy-link");
+  const shareText = document.getElementById("share-copy-text");
+
+  shareBtn?.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      if (shareText) shareText.textContent = "Copied!";
+      if (typeof window.showToast === "function") {
+        window.showToast("Article link copied to clipboard!");
+      }
+      setTimeout(() => {
+        if (shareText) shareText.textContent = "Share";
+      }, 2500);
+    } catch {
+      // fallback
+    }
+  });
+</script>

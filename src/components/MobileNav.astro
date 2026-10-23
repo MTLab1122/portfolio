@@ -2,46 +2,94 @@
 import { Icon } from "astro-icon/components";
 import { nav, person } from "../data/profile";
 
+const rawBaseUrl = import.meta.env.BASE_URL ?? "/";
+const baseUrl = rawBaseUrl.endsWith("/") ? rawBaseUrl : `${rawBaseUrl}/`;
+
 const initials = person.name
   .split(" ")
   .map((w) => w[0])
   .join("");
 ---
 
-<div class="lg:hidden sticky top-0 z-30 bg-ink px-4 py-3">
+<header class="lg:hidden sticky top-0 z-40 border-b border-white/10 bg-ink/95 px-4 py-3 backdrop-blur-md">
   <div class="flex items-center justify-between">
     <a
-      href="#top"
-      class="grid place-items-center w-9 h-9 rounded-full bg-lime text-ink font-display font-bold text-xs"
+      href={`${baseUrl}#top`}
+      class="flex items-center gap-2.5"
+      aria-label="Return to top"
     >
-      {initials}
+      <span class="grid place-items-center w-8 h-8 rounded-full bg-lime text-ink font-display font-bold text-xs">
+        {initials}
+      </span>
+      <span class="font-display font-semibold text-sm text-paper">{person.name}</span>
     </a>
 
-    <button
-      id="mobile-nav-toggle"
-      class="grid place-items-center w-9 h-9 rounded-full text-paper"
-      aria-expanded="false"
-      aria-controls="mobile-nav-menu"
-      aria-label="Open menu"
-    >
-      <Icon name="lucide:menu" class="w-5 h-5" id="icon-menu" />
-      <Icon name="lucide:x" class="w-5 h-5 hidden" id="icon-close" />
-    </button>
+    <div class="flex items-center gap-2">
+      <!-- Quick Status -->
+      <span class="inline-flex items-center gap-1.5 rounded-full bg-ink-soft px-2.5 py-1 text-[0.62rem] font-mono text-paper/80 border border-white/10">
+        <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+        Available
+      </span>
+
+      <button
+        id="mobile-nav-toggle"
+        class="grid place-items-center w-9 h-9 rounded-full text-paper hover:bg-white/10 transition-colors"
+        aria-expanded="false"
+        aria-controls="mobile-nav-menu"
+        aria-label="Open navigation menu"
+      >
+        <Icon name="lucide:menu" class="w-5 h-5" id="icon-menu" />
+        <Icon name="lucide:x" class="w-5 h-5 hidden" id="icon-close" />
+      </button>
+    </div>
   </div>
 
-  <nav id="mobile-nav-menu" class="mobile-nav-menu grid-cols-2 gap-2 pt-4 pb-2" aria-hidden="true" inert>
+  <!-- Mobile Drawer Menu -->
+  <nav
+    id="mobile-nav-menu"
+    class="mobile-nav-menu grid-cols-2 gap-2 pt-4 pb-2"
+    aria-hidden="true"
+    inert
+  >
     {
-      nav.map((item) => (
-        <a
-          href={item.href}
-          class="mobile-nav-link rounded-card bg-ink-soft text-paper px-4 py-3 text-sm font-medium"
-        >
-          {item.label}
-        </a>
-      ))
+      nav.map((item) => {
+        const resolvedHref = item.href.startsWith("/")
+          ? `${baseUrl}${item.href.replace(/^\/+/, "")}`
+          : item.href;
+
+        return (
+          <a
+            href={resolvedHref}
+            class="mobile-nav-link flex items-center justify-between rounded-card bg-ink-soft border border-white/5 text-paper px-4 py-3 text-sm font-medium transition-colors hover:bg-lime hover:text-ink"
+            data-target-id={item.href.replace(/.*#/, "")}
+          >
+            <span>{item.label}</span>
+            <Icon name="lucide:arrow-right" class="w-3.5 h-3.5 opacity-60" />
+          </a>
+        );
+      })
     }
+
+    <!-- Quick Actions in Menu -->
+    <div class="col-span-2 mt-2 flex gap-2 pt-2 border-t border-white/10">
+      <a
+        href={person.resumeUrl}
+        download
+        class="flex-1 flex items-center justify-center gap-2 rounded-pill bg-white/10 px-4 py-2.5 text-xs font-semibold text-paper hover:bg-white/20 transition-colors"
+      >
+        <Icon name="lucide:download" class="w-3.5 h-3.5" />
+        Resume
+      </a>
+      <a
+        href={`${baseUrl}#contact`}
+        class="flex-1 flex items-center justify-center gap-2 rounded-pill bg-lime px-4 py-2.5 text-xs font-semibold text-ink hover:bg-lime-soft transition-colors"
+      >
+        <Icon name="lucide:mail" class="w-3.5 h-3.5" />
+        Get in touch
+      </a>
+    </div>
   </nav>
-</div>
+</header>
 
 <script>
   const toggle = document.getElementById("mobile-nav-toggle");
@@ -49,31 +97,41 @@ const initials = person.name
   const iconMenu = document.getElementById("icon-menu");
   const iconClose = document.getElementById("icon-close");
 
+  const closeMenu = () => {
+    menu?.classList.remove("is-open");
+    menu?.setAttribute("aria-hidden", "true");
+    menu?.setAttribute("inert", "");
+    toggle?.setAttribute("aria-expanded", "false");
+    iconMenu?.classList.remove("hidden");
+    iconClose?.classList.add("hidden");
+  };
+
+  const openMenu = () => {
+    menu?.classList.add("is-open");
+    menu?.setAttribute("aria-hidden", "false");
+    menu?.removeAttribute("inert");
+    toggle?.setAttribute("aria-expanded", "true");
+    iconMenu?.classList.add("hidden");
+    iconClose?.classList.remove("hidden");
+  };
+
   toggle?.addEventListener("click", () => {
-    const isOpen = toggle.getAttribute("aria-expanded") !== "true";
-    menu?.classList.toggle("is-open", isOpen);
-    menu?.setAttribute("aria-hidden", String(!isOpen));
-    menu?.toggleAttribute("inert", !isOpen);
-    toggle.setAttribute("aria-expanded", String(isOpen));
-    iconMenu?.classList.toggle("hidden", isOpen);
-    iconClose?.classList.toggle("hidden", !isOpen);
+    const isOpen = toggle.getAttribute("aria-expanded") === "true";
+    if (isOpen) {
+      closeMenu();
+    } else {
+      openMenu();
+    }
   });
 
   document.querySelectorAll(".mobile-nav-link").forEach((link) => {
-    link.addEventListener("click", () => {
-      menu?.classList.remove("is-open");
-      menu?.setAttribute("aria-hidden", "true");
-      menu?.setAttribute("inert", "");
-      toggle?.setAttribute("aria-expanded", "false");
-      iconMenu?.classList.remove("hidden");
-      iconClose?.classList.add("hidden");
-    });
+    link.addEventListener("click", closeMenu);
   });
 
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && toggle?.getAttribute("aria-expanded") === "true") {
-      toggle.click();
-      toggle.focus();
+      closeMenu();
+      toggle?.focus();
     }
   });
 </script>

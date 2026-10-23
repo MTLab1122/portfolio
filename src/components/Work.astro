@@ -3,76 +3,255 @@ import { Icon } from "astro-icon/components";
 import { projects } from "../data/profile";
 import SectionHeading from "./SectionHeading.astro";
 
-const baseUrl = import.meta.env.BASE_URL.endsWith("/") ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
+const rawBaseUrl = import.meta.env.BASE_URL ?? "/";
+const baseUrl = rawBaseUrl.endsWith("/") ? rawBaseUrl : `${rawBaseUrl}/`;
+
+const categories = ["All", "AI & Systems", "Full Stack", "Frontend"];
 ---
 
-<section id="work" class="work-section border-t border-line px-5 py-16 sm:px-10">
+<section id="work" class="work-section border-t border-line px-5 py-16 sm:px-10 lg:py-20">
   <div class="flex flex-wrap items-end justify-between gap-4">
-    <SectionHeading eyebrow="Work" title="Selected builds." />
-    <a
-      href="https://github.com/MTLab1122"
-      target="_blank"
-      rel="noopener noreferrer"
-      class="reveal inline-flex items-center gap-2 rounded-pill border border-ink/20 px-5 py-2.5 text-sm font-semibold text-ink transition-colors hover:border-ink"
-    >
-      All repos on GitHub
-      <Icon name="lucide:arrow-up-right" class="h-4 w-4" />
-    </a>
+    <div>
+      <SectionHeading eyebrow="Audited GitHub Projects" title="Real code. Proven builds." />
+      <p class="mt-2 text-xs font-mono text-muted">
+        Rigorous audit of 56 repositories under <a href="https://github.com/MTLab1122" target="_blank" rel="noopener noreferrer" class="underline hover:text-ink font-semibold">MTLab1122</a> • Weighted engineering rubric
+      </p>
+    </div>
+
+    <!-- Category filter buttons -->
+    <div class="reveal flex flex-wrap gap-2" id="project-filters">
+      {categories.map((cat, idx) => (
+        <button
+          type="button"
+          data-category={cat}
+          class={`project-filter-btn rounded-pill px-4 py-2 text-xs font-semibold transition-all duration-200 ${
+            idx === 0
+              ? "bg-ink text-paper shadow-sm active-project-filter"
+              : "border border-ink/20 bg-paper text-ink hover:border-ink hover:bg-white"
+          }`}
+        >
+          {cat}
+        </button>
+      ))}
+
+      <a
+        href="https://github.com/MTLab1122"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex items-center gap-1.5 rounded-pill border border-line bg-paper px-4 py-2 text-xs font-semibold text-muted transition-colors hover:border-ink hover:text-ink"
+      >
+        <span>All 56 repos</span>
+        <Icon name="lucide:arrow-up-right" class="h-3.5 w-3.5" />
+      </a>
+    </div>
   </div>
 
-  <div class="work-track-shell mt-10 overflow-hidden">
-  <div class="work-track grid gap-5 md:grid-cols-2">
+  <!-- Projects Grid -->
+  <div class="mt-12 grid gap-6 md:grid-cols-2" id="projects-grid">
     {
       projects.map((project) => (
         <article
-          class={`reveal project-card group flex min-h-[17rem] flex-col justify-between rounded-card border p-6 transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_20px_45px_rgba(20,21,15,0.06)] ${
-            project.featured ? "border-ink bg-ink text-paper" : "border-line bg-paper-dim text-ink"
+          class={`reveal project-card relative flex flex-col justify-between overflow-hidden rounded-card border p-7 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_50px_rgba(20,21,15,0.08)] ${
+            project.featured
+              ? "border-ink bg-ink text-paper shadow-md"
+              : "border-line bg-paper-card text-ink shadow-sm hover:border-ink/40"
           }`}
+          data-project-category={project.category}
         >
+          <div class="card-glare"></div>
+
           <div>
-            <div class="flex items-start justify-between gap-4">
-              <a href={`${baseUrl}projects/${project.slug}`} class="block">
-                <p class={`font-mono text-[0.62rem] uppercase tracking-[0.16em] ${project.featured ? "text-paper/70" : "text-muted"}`}>
-                  Case study
-                </p>
-                <h3 class={`mt-3 font-display text-2xl font-semibold leading-tight ${project.featured ? "text-paper" : "text-ink"}`}>
-                  {project.title}
-                </h3>
-              </a>
-              <span
-                class={`grid h-9 w-9 shrink-0 place-items-center rounded-full transition-colors ${
-                  project.featured ? "bg-lime text-ink" : "bg-paper text-ink group-hover:bg-lime"
-                }`}
-              >
-                <Icon name="lucide:arrow-up-right" class="h-4 w-4" />
+            <!-- Top meta row -->
+            <div class={`flex flex-wrap items-center justify-between gap-3 border-b pb-4 text-xs font-mono uppercase tracking-[0.16em] ${
+              project.featured ? "border-white/10" : "border-line"
+            }`}>
+              <div class="flex items-center gap-2">
+                <span class={`rounded px-2.5 py-0.5 text-[0.62rem] font-bold ${
+                  project.featured ? "bg-lime text-ink" : "bg-ink text-paper"
+                }`}>
+                  {project.category}
+                </span>
+                <span class={project.featured ? "text-paper/60" : "text-muted"}>
+                  {project.year}
+                </span>
+                {project.featured && (
+                  <span class="rounded bg-lime/20 px-2 py-0.5 font-mono text-[0.58rem] font-bold text-lime border border-lime/30">
+                    ★ Featured ({project.score.toFixed(2)}/5.0)
+                  </span>
+                )}
+              </div>
+              <span class={`text-[0.62rem] ${project.featured ? "text-lime" : "text-muted"}`}>
+                {project.role}
               </span>
             </div>
 
-            <p class={`mt-4 text-sm leading-relaxed ${project.featured ? "text-paper/75" : "text-ink/70"}`}>{project.description}</p>
-          </div>
-
-          <div class="mt-6 space-y-4">
-            <div class="flex items-center justify-between text-xs uppercase tracking-[0.16em]">
-              <span class={`font-mono ${project.featured ? "text-paper/70" : "text-muted"}`}>Result</span>
-              <span class={`font-display text-sm ${project.featured ? "text-lime" : "text-ink"}`}>Fast + clear</span>
+            <!-- Title & tagline -->
+            <div class="mt-5">
+              <h3 class={`font-display text-2xl font-bold tracking-tight sm:text-3xl ${
+                project.featured ? "text-paper" : "text-ink"
+              }`}>
+                <a
+                  href={`${baseUrl}projects/${project.slug}`}
+                  class="transition-colors hover:opacity-80"
+                >
+                  {project.title}
+                </a>
+              </h3>
+              <p class={`mt-2 font-display text-sm font-medium ${
+                project.featured ? "text-lime" : "text-muted"
+              }`}>
+                {project.tagline}
+              </p>
             </div>
 
-            <div class="flex flex-wrap items-center justify-between gap-2">
+            <!-- Body description -->
+            <p class={`mt-4 text-sm leading-relaxed ${
+              project.featured ? "text-paper/75" : "text-ink/75"
+            }`}>
+              {project.description}
+            </p>
+
+            <!-- Key metrics callout -->
+            <div class="mt-6 grid grid-cols-3 gap-2">
+              {project.metrics.map((m) => (
+                <div class={`rounded-xl p-2.5 text-center border ${
+                  project.featured
+                    ? "border-white/10 bg-white/5"
+                    : "border-line/80 bg-paper"
+                }`}>
+                  <p class={`font-display text-base font-bold sm:text-lg ${
+                    project.featured ? "text-lime" : "text-ink"
+                  }`}>
+                    {m.value}
+                  </p>
+                  <p class={`mt-0.5 font-mono text-[0.58rem] uppercase tracking-wider ${
+                    project.featured ? "text-paper/60" : "text-muted"
+                  }`}>
+                    {m.label}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <!-- Key features bullet points (Verified) -->
+            {project.keyFeatures && (
+              <div class="mt-5 space-y-1.5">
+                <p class={`font-mono text-[0.62rem] uppercase tracking-wider ${
+                  project.featured ? "text-paper/60" : "text-muted"
+                }`}>
+                  Verified Source Capabilities:
+                </p>
+                <ul class="space-y-1">
+                  {project.keyFeatures.slice(0, 2).map((feat) => (
+                    <li class={`flex items-start gap-2 text-xs leading-relaxed ${
+                      project.featured ? "text-paper/70" : "text-ink/70"
+                    }`}>
+                      <span class="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-lime"></span>
+                      <span>{feat}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+
+          <!-- Bottom tags & action links -->
+          <div class={`mt-8 space-y-4 pt-5 border-t ${
+            project.featured ? "border-white/10" : "border-line"
+          }`}>
+            <!-- Tech tags -->
+            <div class="flex flex-wrap gap-1.5">
               {project.tags.map((tag) => (
                 <span
-                  class={`rounded-pill px-3 py-1.5 text-[0.62rem] font-mono uppercase tracking-[0.14em] ${
-                    project.featured ? "bg-ink-soft text-paper/80" : "bg-paper text-ink/70"
+                  class={`rounded-pill px-2.5 py-1 text-[0.62rem] font-mono uppercase tracking-[0.12em] ${
+                    project.featured
+                      ? "bg-white/10 text-paper/85"
+                      : "border border-line bg-paper text-ink/70"
                   }`}
                 >
                   {tag}
                 </span>
               ))}
-              <a href={`${baseUrl}projects/${project.slug}`} class={`text-xs font-semibold ${project.featured ? "text-lime" : "text-ink"}`}>Read case study</a>
+            </div>
+
+            <!-- Action buttons -->
+            <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+              <a
+                href={`${baseUrl}projects/${project.slug}`}
+                class={`inline-flex items-center gap-1.5 rounded-pill px-4 py-2 text-xs font-semibold transition-all duration-200 hover:-translate-y-0.5 ${
+                  project.featured
+                    ? "bg-lime text-ink hover:bg-paper"
+                    : "bg-ink text-paper hover:bg-ink-soft shadow-xs"
+                }`}
+              >
+                <span>Read case study</span>
+                <Icon name="lucide:arrow-right" class="h-3.5 w-3.5" />
+              </a>
+
+              <div class="flex items-center gap-2">
+                {project.href && project.href !== "#" && (
+                  <a
+                    href={project.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class={`inline-flex items-center gap-1 rounded-pill border px-3 py-1.5 text-xs font-medium transition-colors ${
+                      project.featured
+                        ? "border-lime/40 bg-lime/10 text-lime hover:bg-lime hover:text-ink"
+                        : "border-emerald-600/40 bg-emerald-50 text-emerald-800 hover:bg-emerald-600 hover:text-white"
+                    }`}
+                    aria-label={`Open live demo for ${project.title}`}
+                  >
+                    <Icon name="lucide:external-link" class="h-3.5 w-3.5" />
+                    <span>Live Demo</span>
+                  </a>
+                )}
+
+                <a
+                  href={project.repo}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class={`inline-flex items-center gap-1 rounded-pill border px-3 py-1.5 text-xs font-medium transition-colors ${
+                    project.featured
+                      ? "border-white/20 text-paper/80 hover:border-paper hover:text-paper"
+                      : "border-ink/20 text-ink/80 hover:border-ink hover:text-ink"
+                  }`}
+                  aria-label={`View ${project.title} source code on GitHub`}
+                >
+                  <Icon name="lucide:github" class="h-3.5 w-3.5" />
+                  <span>Code</span>
+                </a>
+              </div>
             </div>
           </div>
         </article>
       ))
     }
   </div>
-  </div>
 </section>
+
+<script>
+  const filterBtns = document.querySelectorAll<HTMLButtonElement>(".project-filter-btn");
+  const projectCards = document.querySelectorAll<HTMLElement>(".project-card");
+
+  filterBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      filterBtns.forEach((b) => {
+        b.classList.remove("bg-ink", "text-paper", "shadow-sm", "active-project-filter");
+        b.classList.add("border", "border-ink/20", "bg-paper", "text-ink");
+      });
+      btn.classList.add("bg-ink", "text-paper", "shadow-sm", "active-project-filter");
+      btn.classList.remove("border", "border-ink/20", "bg-paper", "text-ink");
+
+      const chosen = btn.getAttribute("data-category") ?? "All";
+
+      projectCards.forEach((card) => {
+        const cat = card.getAttribute("data-project-category") ?? "";
+        if (chosen === "All" || cat === chosen) {
+          card.style.display = "flex";
+        } else {
+          card.style.display = "none";
+        }
+      });
+    });
+  });
+</script>

@@ -23,18 +23,21 @@ const {
   structuredData,
 } = Astro.props;
 
-const baseUrl = import.meta.env.BASE_URL.endsWith("/") ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
-const isHomepage = Astro.url.pathname === "/" || Astro.url.pathname === baseUrl;
-const canonicalURL = new URL(Astro.url.pathname, Astro.site);
-const ogImage = new URL(image.replace(/^\/+/, ""), `${Astro.site}/`).toString();
-const schema = {
+const rawBaseUrl = import.meta.env.BASE_URL ?? "/";
+const baseUrl = rawBaseUrl.endsWith("/") ? rawBaseUrl : `${rawBaseUrl}/`;
+const effectiveSite = (Astro.site?.toString() ?? person.productionUrl).replace(/\/+$/, "");
+const canonicalURL = new URL(Astro.url.pathname, `${effectiveSite}/`);
+const ogImage = new URL(image.replace(/^\/+/, ""), `${effectiveSite}/`).toString();
+const isHome = Astro.url.pathname === "/" || Astro.url.pathname === "/portfolio" || Astro.url.pathname === "/portfolio/";
+
+const personSchema = {
   "@context": "https://schema.org",
   "@type": "Person",
   name: person.name,
   jobTitle: person.role,
   description: person.seoDescription,
-  image: new URL(person.photo.replace(/^\/+/, ""), `${Astro.site}/`).toString(),
-  url: canonicalURL.toString(),
+  image: new URL(person.photo.replace(/^\/+/, ""), `${effectiveSite}/`).toString(),
+  url: effectiveSite,
   email: `mailto:${person.email}`,
   telephone: person.phone,
   address: {
@@ -43,13 +46,46 @@ const schema = {
     addressRegion: "Khyber Pakhtunkhwa",
     addressCountry: "PK",
   },
-  sameAs: [person.github, person.linkedin],
+  alumniOf: {
+    "@type": "EducationalOrganization",
+    name: "Abasyn University Peshawar",
+  },
+  sameAs: [person.github, person.linkedin, person.productionUrl],
 };
-const schemas = structuredData ? [schema, structuredData] : [schema];
+
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: person.siteName,
+  url: effectiveSite,
+  description: person.seoDescription,
+  publisher: {
+    "@type": "Person",
+    name: person.name,
+  },
+  inLanguage: "en-US",
+};
+
+const profilePageSchema = isHome
+  ? {
+      "@context": "https://schema.org",
+      "@type": "ProfilePage",
+      mainEntity: personSchema,
+      headline: `${person.name} — ${person.role}`,
+      url: canonicalURL.toString(),
+    }
+  : null;
+
+const schemas = [
+  personSchema,
+  websiteSchema,
+  ...(profilePageSchema ? [profilePageSchema] : []),
+  ...(structuredData ? [structuredData] : []),
+];
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -57,7 +93,7 @@ const schemas = structuredData ? [schema, structuredData] : [schema];
     <meta name="description" content={description} />
     <meta name="keywords" content={person.keywords.join(", ")} />
     <meta name="author" content={person.name} />
-    <meta name="theme-color" content="#a9b8a2" />
+    <meta name="theme-color" content="#14150f" />
     <meta name="application-name" content={person.siteName} />
     <link rel="icon" type="image/svg+xml" href={`${baseUrl}favicon.svg`} />
     <link rel="canonical" href={canonicalURL} />
@@ -76,45 +112,85 @@ const schemas = structuredData ? [schema, structuredData] : [schema];
     <title>{title}</title>
     <script type="application/ld+json" set:html={JSON.stringify(schemas)} />
   </head>
-  <body class="antialiased">
-    {isHomepage && (
-      <div class="intro-veil" data-intro-veil>
-        <div class="intro-mark" aria-hidden="true">
-          <span>{person.name.split(" ")[0]}</span>
-          <span>{person.name.split(" ").slice(1).join(" ")}</span>
-        </div>
-        <p class="intro-caption">Independent digital studio</p>
-        <button class="intro-skip" data-skip-intro type="button">Skip intro</button>
-      </div>
-    )}
+  <body class="antialiased selection:bg-lime selection:text-ink">
+    <a href="#top" class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[200] focus:px-5 focus:py-2.5 focus:bg-lime focus:text-ink focus:font-semibold focus:rounded-pill focus:shadow-2xl">
+      Skip to main content
+    </a>
+
     <div class="scroll-progress" data-scroll-progress aria-hidden="true"></div>
+    <div class="cursor-orb" data-cursor-orb aria-hidden="true"></div>
+    <div class="cursor-ring" data-cursor-ring aria-hidden="true"></div>
+
+    <div id="portfolio-toast" class="toast-notice" role="status" aria-live="polite">
+      <span class="inline-block h-2 w-2 rounded-full bg-lime"></span>
+      <span id="toast-message">Notification message</span>
+    </div>
+
     <slot />
 
     <script>
+      declare global {
+        interface Window {
+          showToast: (message: string, duration?: number) => void;
+        }
+      }
+
+      // Toast notification helper
+      let toastTimer: number | undefined;
+      window.showToast = (message: string, duration = 3000) => {
+        const toast = document.getElementById("portfolio-toast");
+        const msgEl = document.getElementById("toast-message");
+        if (!toast || !msgEl) return;
+        msgEl.textContent = message;
+        toast.classList.add("is-visible");
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = window.setTimeout(() => {
+          toast.classList.remove("is-visible");
+        }, duration);
+      };
+
       const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      const io = new IntersectionObserver(
+      const finePointer = window.matchMedia("(pointer: fine)").matches;
+
+      // Reveal animation observer
+      const revealObserver = new IntersectionObserver(
         (entries) => {
           for (const entry of entries) {
             if (entry.isIntersecting) {
               entry.target.classList.add("is-visible");
-              io.unobserve(entry.target);
+              revealObserver.unobserve(entry.target);
             }
           }
         },
-        { threshold: 0.12 },
+        { threshold: 0.1, rootMargin: "0px 0px -40px 0px" }
       );
 
       document.querySelectorAll(".reveal").forEach((element, index) => {
         const el = element as HTMLElement;
-        el.style.setProperty("--reveal-delay", `${Math.min(index % 5, 4) * 70}ms`);
-        io.observe(el);
+        el.style.setProperty("--reveal-delay", `${Math.min(index % 4, 3) * 60}ms`);
+        revealObserver.observe(el);
       });
 
+      // Story title words splitting & animation
+      document.querySelectorAll<HTMLElement>(".story-title").forEach((heading) => {
+        if (!heading.dataset.split) {
+          heading.dataset.split = "true";
+          const words = heading.textContent?.trim().split(/\s+/) ?? [];
+          heading.innerHTML = words
+            .map((word, i) => `<span class="story-word" style="--word-idx: ${i}">${word}</span>`)
+            .join(" ");
+        }
+      });
+
+      // Scroll progress tracking
       const progress = document.querySelector<HTMLElement>("[data-scroll-progress]");
       let progressFrame = 0;
       const updateProgress = () => {
         const scrollable = document.documentElement.scrollHeight - window.innerHeight;
-        progress?.style.setProperty("--scroll-progress", `${scrollable > 0 ? window.scrollY / scrollable : 0}`);
+        progress?.style.setProperty(
+          "--scroll-progress",
+          `${scrollable > 0 ? window.scrollY / scrollable : 0}`
+        );
         progressFrame = 0;
       };
       updateProgress();
@@ -122,6 +198,7 @@ const schemas = structuredData ? [schema, structuredData] : [schema];
         if (!progressFrame) progressFrame = requestAnimationFrame(updateProgress);
       }, { passive: true });
 
+      // Parallax coordinate tracking
       const shell = document.querySelector(".workflow-shell") as HTMLElement | null;
       if (!reduceMotion && shell) {
         let pointerFrame = 0;
@@ -139,20 +216,51 @@ const schemas = structuredData ? [schema, structuredData] : [schema];
         }, { passive: true });
       }
 
-      const veil = document.querySelector("[data-intro-veil]");
-      if (veil) {
-        const dismiss = () => {
-          veil.classList.add("is-dismissed");
-          veil.setAttribute("inert", "");
-        };
-        document.querySelector("[data-skip-intro]")?.addEventListener("click", () => {
-          sessionStorage.setItem("portfolio-intro-seen", "true");
-          dismiss();
-        });
-        if (reduceMotion || sessionStorage.getItem("portfolio-intro-seen")) {
-          dismiss();
-        } else {
-          window.setTimeout(dismiss, 2100);
+      // Smooth custom cursor for precision mouse pointers
+      if (!reduceMotion && finePointer) {
+        const orb = document.querySelector<HTMLElement>("[data-cursor-orb]");
+        const ring = document.querySelector<HTMLElement>("[data-cursor-ring]");
+        if (orb && ring) {
+          let mouseX = -100;
+          let mouseY = -100;
+          let ringX = -100;
+          let ringY = -100;
+          let isMoving = false;
+
+          window.addEventListener("pointermove", (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            orb.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0)`;
+            if (!isMoving) {
+              isMoving = true;
+              renderRing();
+            }
+          }, { passive: true });
+
+          const renderRing = () => {
+            ringX += (mouseX - ringX) * 0.16;
+            ringY += (mouseY - ringY) * 0.16;
+            ring.style.transform = `translate3d(${ringX}px, ${ringY}px, 0)`;
+            if (Math.hypot(mouseX - ringX, mouseY - ringY) > 0.1) {
+              requestAnimationFrame(renderRing);
+            } else {
+              isMoving = false;
+            }
+          };
+
+          const hoverTargets = 'a, button, input, textarea, select, [role="button"], [data-hover]';
+          document.addEventListener("pointerover", (e) => {
+            const target = (e.target as HTMLElement)?.closest(hoverTargets);
+            if (target) {
+              document.body.classList.add("cursor-hovering");
+            }
+          });
+          document.addEventListener("pointerout", (e) => {
+            const target = (e.target as HTMLElement)?.closest(hoverTargets);
+            if (target) {
+              document.body.classList.remove("cursor-hovering");
+            }
+          });
         }
       }
     </script>

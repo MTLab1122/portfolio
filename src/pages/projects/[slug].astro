@@ -1,55 +1,312 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import { person, projects } from "../../data/profile";
+import { person, projects, type Project } from "../../data/profile";
+import { Icon } from "astro-icon/components";
 
 export function getStaticPaths() {
   return projects.map((project) => ({ params: { slug: project.slug }, props: { project } }));
 }
 
+interface Props {
+  project: Project;
+}
+
 const { project } = Astro.props;
-const baseUrl = import.meta.env.BASE_URL.endsWith("/") ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
-const pageTitle = `${project.title} | ${person.name}`;
-const pageDescription = `${project.description} Case study by ${person.name}, software engineer and frontend developer.`;
+const rawBaseUrl = import.meta.env.BASE_URL ?? "/";
+const baseUrl = rawBaseUrl.endsWith("/") ? rawBaseUrl : `${rawBaseUrl}/`;
+const effectiveSite = (Astro.site?.toString() ?? person.productionUrl).replace(/\/+$/, "");
+
+const currentIndex = projects.findIndex((p) => p.slug === project.slug);
+const prevProject = currentIndex > 0 ? projects[currentIndex - 1] : projects[projects.length - 1];
+const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex + 1] : projects[0];
+
+const pageTitle = `${project.title} — Technical Case Study | ${person.name}`;
+const pageDescription = `${project.description} Detailed technical architecture, problem statement, and engineering approach by ${person.name}.`;
+
 const projectSchema = {
   "@context": "https://schema.org",
-  "@type": "CreativeWork",
+  "@type": "SoftwareSourceCode",
   name: project.title,
+  headline: project.tagline,
   description: pageDescription,
-  creator: { "@type": "Person", name: person.name, url: Astro.url.origin + baseUrl },
+  codeRepository: project.repo,
+  author: {
+    "@type": "Person",
+    name: person.name,
+    url: effectiveSite,
+  },
   keywords: project.tags.join(", "),
-  url: Astro.url.href,
+  programmingLanguage: project.tags[0] ?? "TypeScript",
+  url: new URL(`projects/${project.slug}`, `${effectiveSite}/`).toString(),
+};
+
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "Home",
+      item: `${effectiveSite}/`,
+    },
+    {
+      "@type": "ListItem",
+      position: 2,
+      name: "Projects",
+      item: `${effectiveSite}/#work`,
+    },
+    {
+      "@type": "ListItem",
+      position: 3,
+      name: project.title,
+      item: new URL(`projects/${project.slug}`, `${effectiveSite}/`).toString(),
+    },
+  ],
 };
 ---
 
-<Layout title={pageTitle} description={pageDescription} structuredData={projectSchema}>
-  <div class="min-h-screen bg-sage px-4 py-5 sm:px-6 lg:px-8">
-    <div class="mx-auto max-w-5xl overflow-hidden rounded-[2rem] border border-ink/10 bg-paper shadow-[0_30px_80px_rgba(20,21,15,0.08)]">
-      <header class="border-b border-line px-5 py-5 sm:px-8 lg:px-10">
-        <nav class="flex flex-wrap items-center gap-2 text-sm text-ink/70" aria-label="Breadcrumb">
-          <a href={baseUrl} class="font-medium text-ink hover:text-ink/80">Home</a>
-          <span aria-hidden="true">/</span>
-          <a href={`${baseUrl}#work`} class="font-medium text-ink hover:text-ink/80">Work</a>
-          <span aria-hidden="true">/</span>
-          <span class="font-semibold text-ink">{project.title}</span>
+<Layout
+  title={pageTitle}
+  description={pageDescription}
+  structuredData={projectSchema}
+>
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+
+  <div class="min-h-screen bg-sage/40 px-3 py-4 sm:px-6 sm:py-8 lg:px-8">
+    <div class="mx-auto max-w-5xl overflow-hidden rounded-[2.25rem] border border-ink/10 bg-paper shadow-[0_30px_90px_rgba(20,21,15,0.08)]">
+      
+      <!-- Top Header & Breadcrumb -->
+      <header class="border-b border-line bg-paper-card px-6 py-5 sm:px-10">
+        <nav class="flex flex-wrap items-center justify-between gap-3 text-sm text-ink/70" aria-label="Breadcrumb">
+          <ol class="flex items-center gap-2 list-none p-0 m-0">
+            <li>
+              <a href={baseUrl} class="font-medium text-ink hover:text-ink/80 transition-colors">Home</a>
+            </li>
+            <li class="text-muted" aria-hidden="true">/</li>
+            <li>
+              <a href={`${baseUrl}#work`} class="font-medium text-ink hover:text-ink/80 transition-colors">Work</a>
+            </li>
+            <li class="text-muted" aria-hidden="true">/</li>
+            <li>
+              <span class="font-bold text-ink truncate max-w-[200px] sm:max-w-none" aria-current="page">{project.title}</span>
+            </li>
+          </ol>
+
+          <a
+            href={`${baseUrl}#work`}
+            class="inline-flex items-center gap-1.5 rounded-pill border border-line bg-paper px-3 py-1.5 text-xs font-semibold text-ink hover:border-ink transition-colors"
+          >
+            <Icon name="lucide:arrow-left" class="h-3.5 w-3.5" />
+            <span>All projects</span>
+          </a>
         </nav>
       </header>
-      <main class="px-5 py-10 sm:px-8 lg:px-10 lg:py-16">
+
+      <!-- Main Case Study Content -->
+      <main class="px-6 py-10 sm:px-10 sm:py-16">
         <article class="mx-auto max-w-3xl">
-          <p class="font-mono text-xs uppercase tracking-[0.2em] text-muted">Case study · {project.tags.join(" · ")}</p>
-          <h1 class="mt-4 font-display text-4xl font-bold tracking-tight text-ink sm:text-6xl">{project.title}</h1>
-          <p class="mt-6 text-xl leading-relaxed text-ink/75">{project.description}</p>
-          <div class="mt-10 grid gap-5 sm:grid-cols-3">
-            <section class="rounded-card bg-paper-dim p-5"><h2 class="font-display text-lg font-semibold text-ink">The problem</h2><p class="mt-3 text-sm leading-relaxed text-ink/70">{project.problem}</p></section>
-            <section class="rounded-card bg-paper-dim p-5"><h2 class="font-display text-lg font-semibold text-ink">The approach</h2><p class="mt-3 text-sm leading-relaxed text-ink/70">{project.approach}</p></section>
-            <section class="rounded-card bg-ink p-5 text-paper"><h2 class="font-display text-lg font-semibold">The outcome</h2><p class="mt-3 text-sm leading-relaxed text-paper/75">{project.outcome}</p></section>
+          
+          <!-- Category & Metadata Header -->
+          <div class="flex flex-wrap items-center gap-2 font-mono text-xs uppercase tracking-[0.16em] text-muted">
+            <span class="rounded bg-lime px-2.5 py-1 font-bold text-ink">{project.category}</span>
+            <span>•</span>
+            <span>{project.role}</span>
+            <span>•</span>
+            <span>{project.year}</span>
+            {project.score && (
+              <>
+                <span>•</span>
+                <span class="rounded bg-ink px-2 py-0.5 font-mono text-[0.62rem] text-lime font-bold">
+                  Rubric Score: {project.score.toFixed(2)}/5.0
+                </span>
+              </>
+            )}
           </div>
-          <div class="mt-10 flex flex-wrap gap-3">
-            {project.tags.map((tag) => <span class="rounded-pill border border-line bg-paper-dim px-3 py-1.5 text-xs font-mono uppercase tracking-[0.14em] text-muted">{tag}</span>)}
+
+          <!-- Project Title & Tagline -->
+          <h1 class="mt-4 font-display text-3xl font-bold tracking-tight text-ink sm:text-5xl lg:text-6xl">
+            {project.title}
+          </h1>
+
+          <p class="mt-4 font-display text-lg sm:text-xl font-medium text-muted leading-relaxed">
+            {project.tagline}
+          </p>
+
+          <p class="mt-6 text-base leading-relaxed text-ink/80 sm:text-lg">
+            {project.description}
+          </p>
+
+          <!-- Key Metrics Highlight Grid -->
+          <div class="mt-10 grid grid-cols-3 gap-3 rounded-2xl border border-line bg-paper-card p-4 sm:p-6 shadow-sm">
+            {project.metrics.map((metric) => (
+              <div class="text-center">
+                <p class="font-display text-2xl font-bold text-ink sm:text-4xl">{metric.value}</p>
+                <p class="mt-1 font-mono text-[0.62rem] uppercase tracking-wider text-muted">{metric.label}</p>
+              </div>
+            ))}
           </div>
-          <div class="mt-12 flex flex-wrap gap-3">
-            <a href={`${baseUrl}#contact`} class="inline-flex min-h-12 items-center rounded-pill bg-ink px-5 py-3 text-sm font-semibold text-paper hover:bg-ink-soft">Start a project</a>
-            <a href={`${baseUrl}#work`} class="inline-flex min-h-12 items-center rounded-pill border border-ink/20 px-5 py-3 text-sm font-semibold text-ink hover:border-ink">Back to selected work</a>
+
+          <!-- Action buttons (Code & Live link) -->
+          <div class="mt-8 flex flex-wrap items-center gap-3 border-b border-line pb-10">
+            {project.repo && (
+              <a
+                href={project.repo}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center gap-2 rounded-pill bg-ink px-6 py-3 text-xs font-semibold text-paper hover:bg-ink-soft transition-all duration-200 hover:-translate-y-0.5"
+              >
+                <Icon name="lucide:github" class="h-4 w-4" />
+                <span>View verified GitHub repo</span>
+              </a>
+            )}
+
+            {project.href && project.href !== "#" && (
+              <a
+                href={project.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center gap-2 rounded-pill border border-emerald-600 bg-emerald-50 px-6 py-3 text-xs font-bold text-emerald-900 hover:bg-emerald-600 hover:text-white transition-all duration-200 hover:-translate-y-0.5 shadow-xs"
+              >
+                <Icon name="lucide:external-link" class="h-4 w-4" />
+                <span>Open verified live demo</span>
+              </a>
+            )}
           </div>
+
+          <!-- Case Study Breakdown Sections -->
+          <div class="mt-12 space-y-12">
+            <!-- 1. The Challenge -->
+            <section class="space-y-4">
+              <div class="flex items-center gap-2">
+                <span class="grid h-6 w-6 place-items-center rounded-full bg-lime text-xs font-bold text-ink">1</span>
+                <h2 class="font-display text-2xl font-bold text-ink">The Problem & Intended Users</h2>
+              </div>
+              <p class="text-base leading-relaxed text-ink/75 sm:text-lg">
+                {project.problem}
+              </p>
+            </section>
+
+            <!-- 2. The Architectural Strategy -->
+            <section class="space-y-4">
+              <div class="flex items-center gap-2">
+                <span class="grid h-6 w-6 place-items-center rounded-full bg-lime text-xs font-bold text-ink">2</span>
+                <h2 class="font-display text-2xl font-bold text-ink">Architecture & Implementation Decisions</h2>
+              </div>
+              <p class="text-base leading-relaxed text-ink/75 sm:text-lg">
+                {project.approach}
+              </p>
+              {project.architecture && (
+                <div class="rounded-xl border border-line bg-paper-card p-5 mt-4">
+                  <p class="font-mono text-xs uppercase tracking-wider text-muted font-bold mb-2">Technical Architecture Pipeline:</p>
+                  <p class="font-mono text-xs leading-relaxed text-ink/80 bg-paper p-3.5 rounded-lg border border-line/60">
+                    {project.architecture}
+                  </p>
+                </div>
+              )}
+            </section>
+
+            <!-- 3. Verified Features -->
+            {project.keyFeatures && (
+              <section class="space-y-4">
+                <div class="flex items-center gap-2">
+                  <span class="grid h-6 w-6 place-items-center rounded-full bg-lime text-xs font-bold text-ink">3</span>
+                  <h2 class="font-display text-2xl font-bold text-ink">Source-Verified Capabilities</h2>
+                </div>
+                <div class="grid gap-2.5 sm:grid-cols-2">
+                  {project.keyFeatures.map((feat) => (
+                    <div class="flex items-start gap-2.5 rounded-xl border border-line/70 bg-paper-card p-3.5">
+                      <Icon name="lucide:check-circle-2" class="h-4 w-4 shrink-0 text-emerald-600 mt-0.5" />
+                      <span class="text-xs text-ink/80 leading-relaxed font-medium">{feat}</span>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            <!-- 4. Measurable Outcome -->
+            <section class="space-y-4 rounded-2xl border border-line bg-paper-card p-6 sm:p-8">
+              <div class="flex items-center gap-2">
+                <span class="grid h-6 w-6 place-items-center rounded-full bg-emerald-500 text-xs font-bold text-paper">4</span>
+                <h2 class="font-display text-2xl font-bold text-ink">Measurable Results & Delivery</h2>
+              </div>
+              <p class="text-base leading-relaxed text-ink/75 sm:text-lg">
+                {project.outcome}
+              </p>
+              {project.testNotes && (
+                <div class="mt-4 pt-4 border-t border-line/60 flex items-center gap-2 text-xs font-mono text-muted">
+                  <Icon name="lucide:shield-check" class="h-4 w-4 text-emerald-600" />
+                  <span>{project.testNotes}</span>
+                </div>
+              )}
+            </section>
+
+            <!-- 5. Technology Stack Applied -->
+            <section class="space-y-4">
+              <h3 class="font-mono text-xs uppercase tracking-[0.18em] text-muted">Verified Technologies & Tools</h3>
+              <div class="flex flex-wrap gap-2">
+                {project.tags.map((tag) => (
+                  <span class="rounded-pill border border-line bg-paper px-4 py-2 text-xs font-mono uppercase tracking-wider text-ink font-medium shadow-2xs">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </section>
+          </div>
+
+          <!-- Bottom Inquiry Banner -->
+          <div class="mt-14 rounded-2xl bg-ink p-8 text-paper shadow-md">
+            <h3 class="font-display text-2xl font-bold text-paper">
+              Looking for this level of engineering rigor on your project?
+            </h3>
+            <p class="mt-2 text-sm text-paper/70 leading-relaxed">
+              I architect clean, accessible, and high-performance web systems and automated AI pipelines tailored to production standards.
+            </p>
+            <div class="mt-6 flex flex-wrap gap-3">
+              <a
+                href={`${baseUrl}#contact`}
+                class="inline-flex items-center gap-2 rounded-pill bg-lime px-6 py-3 text-xs font-bold text-ink hover:bg-paper transition-colors"
+              >
+                <span>Start a direct inquiry</span>
+                <Icon name="lucide:arrow-right" class="h-3.5 w-3.5" />
+              </a>
+              <a
+                href={`${baseUrl}#work`}
+                class="inline-flex items-center gap-2 rounded-pill border border-white/20 px-5 py-3 text-xs font-semibold text-paper hover:border-paper transition-colors"
+              >
+                <span>Back to all builds</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Next / Previous Project Navigation -->
+          <nav class="mt-14 grid gap-4 sm:grid-cols-2 border-t border-line pt-8" aria-label="Project pagination">
+            <a
+              href={`${baseUrl}projects/${prevProject.slug}`}
+              class="group flex flex-col justify-between rounded-xl border border-line bg-paper-card p-5 transition-all hover:border-ink hover:shadow-xs"
+            >
+              <span class="flex items-center gap-1 font-mono text-[0.62rem] uppercase tracking-wider text-muted">
+                <Icon name="lucide:arrow-left" class="h-3 w-3" />
+                Previous Project
+              </span>
+              <p class="mt-2 font-display text-base font-bold text-ink group-hover:text-ink/80">
+                {prevProject.title}
+              </p>
+            </a>
+
+            <a
+              href={`${baseUrl}projects/${nextProject.slug}`}
+              class="group flex flex-col justify-between rounded-xl border border-line bg-paper-card p-5 sm:text-right transition-all hover:border-ink hover:shadow-xs"
+            >
+              <span class="flex items-center justify-end gap-1 font-mono text-[0.62rem] uppercase tracking-wider text-muted">
+                Next Project
+                <Icon name="lucide:arrow-right" class="h-3 w-3" />
+              </span>
+              <p class="mt-2 font-display text-base font-bold text-ink group-hover:text-ink/80">
+                {nextProject.title}
+              </p>
+            </a>
+          </nav>
         </article>
       </main>
     </div>

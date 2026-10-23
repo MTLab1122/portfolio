@@ -7,8 +7,13 @@ const railIcons: Record<string, string> = {
   Skills: "lucide:layers",
   Work: "lucide:code-2",
   Experience: "lucide:briefcase",
+  FAQ: "lucide:help-circle",
+  Blog: "lucide:book-open",
   Contact: "lucide:mail",
 };
+
+const rawBaseUrl = import.meta.env.BASE_URL ?? "/";
+const baseUrl = rawBaseUrl.endsWith("/") ? rawBaseUrl : `${rawBaseUrl}/`;
 
 const initials = person.name
   .split(" ")
@@ -17,60 +22,104 @@ const initials = person.name
 ---
 
 <aside
-  class="hidden lg:flex sticky top-0 h-screen w-20 shrink-0 flex-col items-center justify-between bg-ink py-6"
-  aria-label="Primary"
+  class="hidden lg:flex sticky top-0 h-screen w-20 shrink-0 flex-col items-center justify-between border-r border-white/5 bg-ink py-6 z-20"
+  aria-label="Primary navigation"
 >
-  <div class="flex flex-col items-center gap-8">
+  <!-- Top brand logo -->
+  <div class="flex flex-col items-center gap-7">
     <a
-      href="#top"
-      class="grid place-items-center w-11 h-11 rounded-full bg-lime text-ink font-display font-bold text-sm"
-      aria-label="Back to top"
+      href={`${baseUrl}#top`}
+      class="group relative grid place-items-center w-11 h-11 rounded-full bg-lime text-ink font-display font-bold text-sm shadow-[0_0_20px_rgba(216,250,62,0.3)] transition-transform duration-200 hover:scale-105"
+      aria-label="Muhammad Talha — Return to top"
     >
-      MT
+      <span>{initials}</span>
+      <span class="nav-tooltip">{person.name}</span>
     </a>
 
-    <nav class="flex flex-col items-center gap-2">
+    <!-- Nav rail items -->
+    <nav class="flex flex-col items-center gap-2.5" aria-label="Page sections">
       {
-        nav.map((item) => (
-          <a
-            href={item.href}
-            class="group grid place-items-center w-11 h-11 rounded-full text-paper/60 hover:text-ink hover:bg-lime transition-colors duration-200"
-            title={item.label}
-            aria-label={item.label}
-          >
-            <Icon name={railIcons[item.label] ?? "lucide:circle"} class="w-5 h-5" />
-          </a>
-        ))
+        nav.map((item) => {
+          const resolvedHref = item.href.startsWith("/")
+            ? `${baseUrl}${item.href.replace(/^\/+/, "")}`
+            : item.href;
+
+          return (
+            <a
+              href={resolvedHref}
+              class="nav-rail-item relative group grid place-items-center w-11 h-11 rounded-full text-paper/60 hover:text-ink hover:bg-lime transition-all duration-200"
+              aria-label={item.label}
+              data-nav-link
+              data-target-id={item.href.replace(/.*#/, "")}
+            >
+              <Icon name={railIcons[item.label] ?? "lucide:circle"} class="w-5 h-5 transition-transform duration-200 group-hover:scale-110" />
+              <span class="nav-tooltip">{item.label}</span>
+            </a>
+          );
+        })
       }
     </nav>
   </div>
 
+  <!-- Bottom quick utility links -->
   <div class="flex flex-col items-center gap-3">
+    <button
+      type="button"
+      id="rail-copy-email"
+      data-email={person.email}
+      class="nav-rail-item relative group grid place-items-center w-10 h-10 rounded-full text-paper/60 hover:text-ink hover:bg-lime transition-all duration-200"
+      aria-label="Copy email address"
+    >
+      <Icon name="lucide:copy" class="w-4 h-4" />
+      <span class="nav-tooltip">Copy email</span>
+    </button>
+
     <a
       href={person.github}
       target="_blank"
       rel="noopener noreferrer"
-      class="grid place-items-center w-10 h-10 rounded-full text-paper/60 hover:text-ink hover:bg-lime transition-colors duration-200"
-      aria-label="GitHub profile"
+      class="nav-rail-item relative group grid place-items-center w-10 h-10 rounded-full text-paper/60 hover:text-ink hover:bg-lime transition-all duration-200"
+      aria-label="GitHub profile (opens in new tab)"
     >
-      <Icon name="lucide:github" class="w-[1.125rem] h-[1.125rem]" />
+      <Icon name="lucide:github" class="w-4 h-4" />
+      <span class="nav-tooltip">GitHub</span>
     </a>
+
     <a
       href={person.linkedin}
       target="_blank"
       rel="noopener noreferrer"
-      class="grid place-items-center w-10 h-10 rounded-full text-paper/60 hover:text-ink hover:bg-lime transition-colors duration-200"
-      aria-label="LinkedIn profile"
+      class="nav-rail-item relative group grid place-items-center w-10 h-10 rounded-full text-paper/60 hover:text-ink hover:bg-lime transition-all duration-200"
+      aria-label="LinkedIn profile (opens in new tab)"
     >
-      <Icon name="lucide:linkedin" class="w-[1.125rem] h-[1.125rem]" />
+      <Icon name="lucide:linkedin" class="w-4 h-4" />
+      <span class="nav-tooltip">LinkedIn</span>
     </a>
+
     <a
       href={person.resumeUrl}
       download
-      class="grid place-items-center w-10 h-10 rounded-full text-paper/60 hover:text-ink hover:bg-lime transition-colors duration-200"
+      class="nav-rail-item relative group grid place-items-center w-10 h-10 rounded-full text-paper/60 hover:text-ink hover:bg-lime transition-all duration-200"
       aria-label="Download resume"
     >
-      <Icon name="lucide:download" class="w-[1.125rem] h-[1.125rem]" />
+      <Icon name="lucide:download" class="w-4 h-4" />
+      <span class="nav-tooltip">Download CV</span>
     </a>
   </div>
 </aside>
+
+<script>
+  const copyBtn = document.getElementById("rail-copy-email");
+  copyBtn?.addEventListener("click", async () => {
+    const email = copyBtn.getAttribute("data-email");
+    if (!email) return;
+    try {
+      await navigator.clipboard.writeText(email);
+      if (typeof window.showToast === "function") {
+        window.showToast("Email copied to clipboard!");
+      }
+    } catch {
+      window.location.href = `mailto:${email}`;
+    }
+  });
+</script>

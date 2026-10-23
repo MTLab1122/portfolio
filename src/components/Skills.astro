@@ -5,31 +5,174 @@ import SectionHeading from "./SectionHeading.astro";
 
 const groupIcons: Record<string, string> = {
   "Languages & Frameworks": "lucide:code-2",
-  "Design & Productivity": "lucide:pen-tool",
-  "Currently learning": "lucide:sparkles",
+  "Design & UI Craft": "lucide:pen-tool",
+  "Tools & Workflow": "lucide:wrench",
+  "Currently Exploring": "lucide:sparkles",
 };
+
+const skillIcons: Record<string, string> = {
+  "TypeScript": "lucide:file-code",
+  "JavaScript": "lucide:code",
+  "Astro": "lucide:rocket",
+  "Next.js": "lucide:layers",
+  "Node.js": "lucide:cpu",
+  "Python": "lucide:terminal",
+  "Tailwind CSS": "lucide:palette",
+  "MongoDB": "lucide:database",
+  "Figma UI/UX": "lucide:figma",
+  "Design Systems": "lucide:grid",
+  "Corel Draw": "lucide:shapes",
+  "Photoshop": "lucide:image",
+  "Canva": "lucide:brush",
+  "InPage": "lucide:type",
+  "Git & GitHub": "lucide:git-branch",
+  "REST APIs": "lucide:cloud",
+  "GSAP Motion": "lucide:move",
+  "Vite": "lucide:zap",
+  "Technical SEO": "lucide:search",
+  "MS Office": "lucide:file-text",
+  "AI-Assisted Development": "lucide:bot",
+  "Advanced Next.js": "lucide:component",
+  "Cloud & Edge Deployment": "lucide:server",
+};
+
+const categories = ["All", ...Object.keys(skills)];
 ---
 
-<section id="skills" class="border-t border-line px-5 py-16 sm:px-10">
-  <SectionHeading eyebrow="Skills" title="The tools behind the work." />
+<section id="skills" class="border-t border-line px-5 py-16 sm:px-10 lg:py-20">
+  <div class="flex flex-wrap items-end justify-between gap-4">
+    <SectionHeading eyebrow="Skills & Technologies" title="The tools behind the work." />
 
-  <div class="mt-10 grid gap-4 md:grid-cols-3">
+    <!-- Filter chips -->
+    <div class="reveal flex flex-wrap gap-2" id="skill-filter-buttons">
+      {categories.map((cat, idx) => (
+        <button
+          type="button"
+          data-category={cat}
+          class={`skill-filter-btn rounded-pill px-4 py-2 text-xs font-semibold transition-all duration-200 ${
+            idx === 0
+              ? "bg-ink text-paper shadow-sm active-filter"
+              : "border border-ink/20 bg-paper text-ink hover:border-ink"
+          }`}
+        >
+          {cat}
+        </button>
+      ))}
+    </div>
+  </div>
+
+  <!-- Live Search Bar -->
+  <div class="reveal mt-8 max-w-md">
+    <div class="relative flex items-center">
+      <Icon name="lucide:search" class="absolute left-4 h-4 w-4 text-muted pointer-events-none" />
+      <input
+        type="search"
+        id="skill-search-input"
+        placeholder="Filter skills by keyword (e.g. Astro, Next.js, Figma)..."
+        class="w-full rounded-pill border border-line bg-paper-card py-2.5 pl-11 pr-4 text-xs font-medium text-ink placeholder:text-muted/70 transition-colors focus:border-ink focus:bg-white focus:outline-none"
+        aria-label="Filter skills by keyword"
+      />
+    </div>
+  </div>
+
+  <!-- Skill Groups Grid -->
+  <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4" id="skills-container">
     {
       Object.entries(skills).map(([group, items]) => (
-        <div class="reveal rounded-card border border-line bg-paper-dim p-6 transition-transform duration-200 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(20,21,15,0.05)]">
-          <div class="mb-5 flex items-center gap-2 text-ink">
-            <span class="grid h-8 w-8 place-items-center rounded-full bg-lime">
-              <Icon name={groupIcons[group] ?? "lucide:circle"} class="h-4 w-4 text-ink" />
+        <div
+          class="skill-group-card reveal flex flex-col rounded-card border border-line bg-paper-card p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-ink/30 hover:shadow-md"
+          data-group={group}
+        >
+          <div class="mb-5 flex items-center gap-3 border-b border-line/60 pb-3">
+            <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-lime text-ink shadow-2xs">
+              <Icon name={groupIcons[group] ?? "lucide:circle"} class="h-4 w-4" />
             </span>
-            <h3 class="font-display text-base font-semibold">{group}</h3>
+            <div>
+              <h3 class="font-display text-sm font-bold text-ink leading-tight">{group}</h3>
+              <span class="font-mono text-[0.62rem] text-muted">{items.length} tools</span>
+            </div>
           </div>
-          <div class="flex flex-wrap gap-2">
+
+          <div class="flex flex-wrap gap-2 skill-items-list">
             {items.map((item) => (
-              <span class="rounded-pill bg-paper px-3 py-1.5 text-sm font-medium text-ink/80">{item}</span>
+              <span
+                class="skill-pill inline-flex items-center gap-1.5 rounded-pill border border-line bg-paper px-3 py-1.5 text-xs font-medium text-ink/85 transition-all duration-150 hover:border-ink hover:bg-white hover:text-ink hover:shadow-2xs"
+                data-skill-name={item.toLowerCase()}
+              >
+                <Icon name={skillIcons[item] ?? "lucide:check"} class="h-3 w-3 text-muted" />
+                <span>{item}</span>
+              </span>
             ))}
           </div>
         </div>
       ))
     }
   </div>
+
+  <p id="no-skills-found" class="mt-8 text-center font-mono text-sm text-muted" style="display: none;">
+    No skills match the current search.
+  </p>
 </section>
+
+<script>
+  const filterButtons = document.querySelectorAll<HTMLButtonElement>(".skill-filter-btn");
+  const groupCards = document.querySelectorAll<HTMLElement>(".skill-group-card");
+  const searchInput = document.getElementById("skill-search-input") as HTMLInputElement | null;
+  const noResultsMsg = document.getElementById("no-skills-found");
+
+  let activeCategory = "All";
+  let searchQuery = "";
+
+  const updateSkillVisibility = () => {
+    let visibleGroupsCount = 0;
+
+    groupCards.forEach((card) => {
+      const groupName = card.getAttribute("data-group") ?? "";
+      const matchesCategory = activeCategory === "All" || groupName === activeCategory;
+      const pills = card.querySelectorAll<HTMLElement>(".skill-pill");
+      let visiblePillsInCard = 0;
+
+      pills.forEach((pill) => {
+        const skillName = pill.getAttribute("data-skill-name") ?? "";
+        const matchesSearch = !searchQuery || skillName.includes(searchQuery);
+
+        if (matchesSearch) {
+          pill.style.display = "inline-flex";
+          visiblePillsInCard++;
+        } else {
+          pill.style.display = "none";
+        }
+      });
+
+      if (matchesCategory && visiblePillsInCard > 0) {
+        card.style.display = "flex";
+        visibleGroupsCount++;
+      } else {
+        card.style.display = "none";
+      }
+    });
+
+    if (noResultsMsg) {
+      noResultsMsg.style.display = visibleGroupsCount === 0 ? "block" : "none";
+    }
+  };
+
+  filterButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      filterButtons.forEach((b) => {
+        b.classList.remove("bg-ink", "text-paper", "shadow-sm", "active-filter");
+        b.classList.add("border", "border-ink/20", "bg-paper", "text-ink");
+      });
+      btn.classList.add("bg-ink", "text-paper", "shadow-sm", "active-filter");
+      btn.classList.remove("border", "border-ink/20", "bg-paper", "text-ink");
+
+      activeCategory = btn.getAttribute("data-category") ?? "All";
+      updateSkillVisibility();
+    });
+  });
+
+  searchInput?.addEventListener("input", (e) => {
+    searchQuery = (e.target as HTMLInputElement).value.trim().toLowerCase();
+    updateSkillVisibility();
+  });
+</script>
